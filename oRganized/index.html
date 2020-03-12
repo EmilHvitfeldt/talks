@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Best Practices in R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Emil Hvitfeldt" />
+    <meta name="date" content="2018-10-29" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, title-slide
+
+# Best Practices in R
+## What I wish I someone told me when I started using R
+### Emil Hvitfeldt
+### 2018-10-29
+
+---
+
+
+
+
+## Overview
+
+--
+- Before You Start Using R  
+
+--
+- Once You Start Writing R  
+
+--
+
+All references and additional information can be found in this repository
+
+https://github.com/EmilHvitfeldt/oRganized-talk
+
+---
+
+class: center
+
+# Before You Start Using R
+
+---
+
+## Use Rstudio
+
+https://www.rstudio.com/products/rstudio/download/#download  
+
+.center[![Download appropiate version of Rstudio](images/rstudio-download.png)]
+
+???
+
+Other alternatives. Emacs, Vim, Visual Studio.
+
+---
+
+## Change Settings
+
+.pull-left[
+.medium[**Keyboard shortcut to open settings**]  
+`⌘ + ,` in Mac OS,  
+`ctrl + ,` in Windows  
+
+✓ - Uncheck "Restore .RData into work space at start up"  
+
+✓ - Set "Save work space to .Rdata on exit" to "Never"
+]
+
+.pull-right[![Settings window](images/settings-general.png)]
+
+---
+
+## Change Appearance
+
+.pull-left[
+Plenty choices of
+
+- Rstudio themes
+- Fonts
+- Font Sizes
+- Editor Themes
+
+Play around! Find something you love!
+
+]
+
+.pull-right[![Settings window](images/settings-appearance.png)]
+
+---
+
+## Pane layouts
+
+.pull-left[
+Change the layout of the panes  
+
+Source on top?  
+Source down to the right?  
+Its all up to you!
+]
+
+.pull-right[![Settings window](images/settings-pane-layout.png)]
+
+---
+
+## Pane layouts - My Setup
+
+I like having both source and console open
+
+.center[![:scale 80%](images/my-pane-layout.png)]
+
+---
+
+## Pane layouts - My Setup 2
+
+... while still allowing me to have plots/help/viewer open
+
+.center[![:scale 80%](images/my-pane-layout-recursive.png)]
+
+???
+
+Mention recursive viewer pane.
+
+---
+
+## RStudio Projects
+
+Keep all files from one project together. Use RStudio projects.  
+
+--
+- Self contained
+
+--
+- Avoid overlapping
+
+--
+- Project orientated
+
+???
+
+keep all the files associated with a project together — input data, R scripts, analytic results, figures.
+
+---
+
+## RStudio Projects - Creation 1 / 4
+
+Keep all files from one project together. Use RStudio projects.
+
+.pull-left[
+Click File &gt; New Project  
+![Up right tick](images/rstudio-project-1.png)
+]
+
+.pull-right[
+Or click on the upper right
+![Up right tick](images/rstudio-project-2.png)
+]
+
+---
+
+## RStudio Projects - Creation 2 / 4
+
+.center[![1](images/project-creation-1.png)]
+
+---
+
+## RStudio Projects - Creation 3 / 4
+
+.center[![1](images/project-creation-2.png)]
+
+---
+
+## RStudio Projects - Creation 4 / 4
+
+.center[![1](images/project-creation-3.png)]
+
+---
+
+## Folder Structure
+
+--
+
+
+```r
+name_of_project
+|--raw_data
+    |--WhateverData.xlsx
+    |--report_2017.csv
+|--output_data
+    |--summary2017.csv
+|--rmd
+    |--01-analysis.Rmd
+|--docs
+    |--01-analysis.html
+    |--01-analysis.pdf
+|--scripts
+    |--exploratory_analysis.R
+    |--pdf_scraper.R
+|--figures
+    |--weather_2017.png
+|--name_of_project.Rproj
+|--run_all.R
+```
+
+---
+
+## Folder Structure
+
+Everything has a spot where it belongs.
+
+- Raw data separate from cleaned data
+- Reports and scrips are separated
+- Generated and imported figures has its own place
+- Numbered using 2 digits
+- Reusable and easily understandable
+
+
+```r
+library(fs)
+folder_names &lt;- c("raw_data", "output_data", "rmd", "docs", 
+                  "scripts", "figures")
+
+dir_create(fldr_names)
+```
+
+???
+
+never modify raw data, only read (forever untouched)
+
+---
+
+## Paths
+
+
+```r
+library(tidyverse)
+
+# data import
+data &lt;- read_csv("/Users/Emil/Research/Health/amazing_data.csv")
+```
+
+---
+
+## Paths
+
+
+```r
+library(tidyverse)
+
+# data import
+data &lt;- read_csv("/Users/Emil/Research/Health/amazing_data.csv")
+```
+
+```
+## Error: '/Users/Emil/Research/Health/amazing_data.csv' does not exist.
+```
+
+--
+
+__Only use relative paths, never absolute paths__
+
+--
+
+Introducing the *here* package.
+
+
+```r
+library(here)
+here()
+```
+
+```
+## [1] "/Users/Emil/Research/Health"
+```
+
+
+```r
+library(here)
+data &lt;- read_csv(here("amazing_data.csv"))
+```
+
+---
+
+## Naming Things
+
+--
+
+.center[![tweet about naming](images/naming-tweet.png)]
+
+???
+
+- Organization
+- Ease of use  
+There will be multi slides about naming
+
+---
+
+## Naming Things - Files
+
+### NO
+
+
+```r
+report.pdf
+reportv2.pdf
+reportthisisthelastone.pages
+Figure 2.png 
+3465-234szx.r
+foo.R
+```
+
+### YES
+
+
+```r
+2018-10-01_01_report-for-cdc.pdf
+01_data.rmd
+01_data.pdf
+02_data-filtering.rmd
+02_data-filtering.pdf
+```
+
+???
+
+Follow narrative from folder structure slide  
+jenny Bryan naming things
+
+---
+
+## Naming Things - Files
+
+We want file names to be "machine readable" and "human readable".
+
+--
+
+- Avoid spaces, punctuation, special characters and case sensitivity
+- Deliberate use of delimiters
+- File name should describe the **contents** of the file
+- Put something numeric first
+- Left pad numbers with zeroes
+- Use ISO 8601 standard for dates (YYYY-MM-DD)
+
+???
+
+to preserve chronological and logical ordering.
+
+---
+
+## Naming Things - Files
+
+
+```r
+library(fs)
+dir_ls("data/", regexp = "health-study")
+```
+
+
+```
+## 2018-02-23_health-study_power-100_group-A1.csv
+## 2018-02-23_health-study_power-100_group-B1.csv
+## 2018-02-23_health-study_power-100_group-C1.csv
+## 2018-02-23_health-study_power-200_group-A1.csv
+## 2018-02-23_health-study_power-200_group-B1.csv
+## 2018-02-23_health-study_power-200_group-C1.csv
+```
+
+--
+
+
+```r
+stringr::str_split_fixed(x, "[_\\.]", 5)
+```
+
+```
+##      [,1]         [,2]           [,3]        [,4]       [,5] 
+## [1,] "2018-02-23" "health-study" "power-100" "group-A1" "csv"
+## [2,] "2018-02-23" "health-study" "power-100" "group-B1" "csv"
+## [3,] "2018-02-23" "health-study" "power-100" "group-C1" "csv"
+## [4,] "2018-02-23" "health-study" "power-200" "group-A1" "csv"
+## [5,] "2018-02-23" "health-study" "power-200" "group-B1" "csv"
+## [6,] "2018-02-23" "health-study" "power-200" "group-C1" "csv"
+```
+
+???
+- Avoid spaces, punctuation, special characters and case sensitivity  
+- Deliberate use of delimiters  
+- File name should describe the **contents** of the file  
+- Put something numeric first  
+- Left pad numbers with zeroes  
+- Use ISO 8601 standard for dates (YYYY-MM-DD)
+
+---
+
+## Naming Things - Files
+
+
+```r
+library(fs)
+dir_ls("data/", regexp = "health-study")
+```
+
+
+```
+## 2018-02-23_health-study_power-100_group-A1.csv
+## 2018-02-23_health-study_power-100_group-B1.csv
+## 2018-02-23_health-study_power-100_group-C1.csv
+## 2018-02-23_health-study_power-200_group-A1.csv
+## 2018-02-23_health-study_power-200_group-B1.csv
+## 2018-02-23_health-study_power-200_group-C1.csv
+```
+
+--
+
+
+```r
+library(tidyverse)
+map_df(dir_ls("data/", regexp = "health-study"), read_csv)
+
+# or
+
+dir_ls("data/", regexp = "health-study") %&gt;%
+  map_df(read_csv)
+```
+
+???
+- Avoid spaces, punctuation, special characters and case sensitivity  
+- Deliberate use of delimiters  
+- File name should describe the **contents** of the file  
+- Put something numeric first  
+- Left pad numbers with zeroes  
+- Use ISO 8601 standard for dates (YYYY-MM-DD)
+
+---
+
+## Naming Things - Objects
+
+- Only use lowercase letters, numbers, and `_`
+- Use names that are not jargony, **weight** instead of **K**
+- Use informative names
+
+--
+
+
+```r
+# Bad
+df
+e
+tuningVar
+
+# Good
+health_data
+error
+tuning_var
+```
+
+???
+lowercase letters + numbers = alpha-numeric characters (ish)
+
+---
+
+class: center
+
+# Once You Start Writing R
+
+---
+
+## What To Avoid - attach()
+
+Never use `attach()`
+
+--
+
+
+```r
+attach(mtcars)
+mean(mpg)
+```
+
+```
+## [1] 20.09062
+```
+
+Loading lots of names into the search path, ambiguous selections.
+
+---
+
+## What To Avoid - attach()
+
+Never use `rm(list=ls())`
+
+--
+
+Will not reset packages, reset options, ...
+
+Restart the R session  
+
+CTRL+SHIFT+F10 for Windows  
+CMD+SHIFT+ALT+F10 for Mac OS
+
+---
+
+## R Markdown
+
+Most of your documents can be written in R Markdown.  
+
+.center[![rmarkdown](images/rmarkdown-flow.png)]
+
+Using the basics of markdown with the addition of R code chunks.
+
+???
+Reference Folder structure
+web page, PDF, MS Word document, slide show, handout, book, dashboard, package vignette or other format.
+rticles package
+
+no more copy pasting results into your document.
+
+---
+
+## R Markdown
+
+**R Markdown documents versus R scripts**
+
+Use R scripts for simple self contained tasks.  
+
+`source()` R scripts into your R Markdown document where you will do analyses, visualizations and reporting.
+
+---
+
+## R Markdown
+
+
+```r
+- 01-import.R
+- 02-clean-names.R
+- 03-tidy.R
+- etc
+```
+
+--
+
+Include at the start of R Markdown file
+
+
+```r
+{r load_scripts, include = FALSE}
+library(here)
+source(here("scripts", "01-import.R"))
+source(here("scripts", "02-clean-names.R"))
+source(here("scripts", "03-tidy.R"))
+```
+
+???
+
+---
+
+## Naming Chunks
+
+Names can be placed after the comma
+
+````markdown
+```{r, chunk-label, results='hide', fig.height=4}
+````
+
+or before
+
+````markdown
+```{r chunk-label, results='hide', fig.height=4}
+````
+
+&gt; In general it is recommended to use alphabetic characters with words separated by - and avoid other characters. - Yihui Xie
+
+---
+
+## Naming Chunks
+
+- Make navigating the R Markdown document easier
+- Make your R Markdown easier to understand
+- Clarifies error reports or progress of knitting
+- Caching when moving chunks around
+- Feels good
+
+???
+
+Lower left corner of Rstudio have menu where sections and chunks can be selected with.
+
+Caching on unnamed chunks are based on numbering.
+
+---
+
+## Setup Chunk
+
+In a fresh R Markdown document you see this
+
+````markdown
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+````
+--
+
+The setup chuck is run before another code - use to your advantage
+
+---
+
+## Chunk Options
+
+&gt; Defaults will rarely work for you 100% of the time.
+
+--
+
+Set `echo = TRUE`, knit document with code.  
+Set `echo = FALSE`, reknit document with the code hidden.
+
+--
+
+.small[
+- eval
+- echo
+- results
+- collapse
+- fig.path
+- warning
+- error
+- message
+]
+
+???
+Working with colleagues that knows R
+Working with colleagues that don't
+
+---
+
+## Chunk Options
+
+--
+
+````markdown
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.path = "figures/")
+````
+
+Will save all figures in the the folder figures with the chunk name.
+
+???
+highlight use of fig.path option
+
+fig.path: ('figure/'; character) prefix to be used for figure filenames (fig.path and chunk labels are concatenated to make filenames)
+
+---
+
+## Styling Code
+
+Use consistent style when writing code  
+
+--
+
+[http://style.tidyverse.org/](http://style.tidyverse.org/)
+
+--
+
+All about preferences but keep it consistent!!!
+
+???
+
+Give examples of styles to follow
+
+---
+
+## Keep .Rprofile Clean
+
+Your project contains a file called .Rprofile.
+
+This file runs first in every session. Think of it as configuration file.
+
+--
+
+
+```r
+options(stringsAsFactors = FALSE)
+options(max.print = 100)
+```
+
+--
+
+_PANIC!!!_ Code will only work for you!  
+Avoid putting output altering code in .Rprofile!
+
+???
+
+Use it to change options and load packages
+
+---
+
+## Comment Your Code
+
+- Functions: Arguments and purpose
+- Code: What or why, NOT how
+
+--
+
+
+```r
+# Takes a data.frame (data) and replaces the columns with the names
+# (names) and converts them from factor variable to character 
+# variables. Keeps characters variables unchanged.
+factor_to_text &lt;- function(data, names) {
+  for (i in seq_along(names)) {
+    if(is.factor(data[, names[i], drop = TRUE]))
+      data[, names[i]] &lt;- as.character.factor(data[, names[i], 
+                                                   drop = TRUE])
+  }
+  data
+}
+```
+
+
+---
+
+## Should You Write a Function?
+
+&gt; Once you’ve written the same code 3 times, write a function
+
+
+```r
+mtcars %&gt;% 
+  mutate(mpg = mpg / 2.5 + 2,
+         cyl = cyl / 2.5 + 2,
+         hp = hp / 2.5 + 2)
+```
+
+--
+
+You should have added 3 instead of 2
+
+
+```r
+mtcars %&gt;% 
+  mutate(mpg = mpg / 2.5 + 2,
+         cyl = cyl / 2.5 + 3,
+         hp = hp / 2.5 + 3)
+```
+
+---
+
+## Should You Write a Function?
+
+&gt; Once you’ve written the same code 3 times, write a function
+
+--
+
+
+```r
+scale_fun &lt;- function(x) x / 2.5 + 3
+
+mtcars %&gt;% 
+  mutate(mpg = scale_fun(mpg),
+         cyl = scale_fun(cyl),
+         hp = scale_fun(hp))
+```
+
+---
+
+## Testing
+
+Use tests in your pipeline to check assumptions.
+
+
+```r
+library(tidyverse)
+
+data &lt;- fancy_gov_data_api("health", year = 2018, month = 10)
+
+data %&gt;% 
+  group_by(county) %&gt;% 
+  summarize(happiness = (- death + love) / population)
+```
+
+???
+
+Say you are downloading data from government API.
+
+---
+
+## Testing
+
+__testhat__ is primarily used for unit testing in R packages.
+
+Contains large collection of `expect_` functions.
+
+- expect_equal
+- expect_equivalent
+- expect_error
+- expect_length
+- expect_named
+- ...
+
+---
+
+## Testing
+
+
+Use tests in your pipeline to check assumptions.
+
+
+```r
+library(tidyverse)
+library(testthat)
+
+data &lt;- fancy_gov_data_api("health", year = 2018, month = 10)
+
+expect_length(unique(data$county), 3007)
+expect_gt(mean(data$love == NA), 0.1)
+
+data %&gt;% 
+  group_by(county) %&gt;% 
+  summarize(happiness = (- death + love) / population)
+```
+
+???
+
+Say you are downloading data from government API.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  /* Replace <script> tags in slides area to make them executable
+   *
+   * Runs after post-processing of markdown source into slides and replaces only
+   * <script>s on the last slide of continued slides using the .has-continuation
+   * class added by xaringan. Finally, any <script>s in the slides area that
+   * aren't executed are commented out.
+   */
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container:not(.has-continuation) script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+  var scriptsNotExecuted = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container.has-continuation script'
+  );
+  if (!scriptsNotExecuted.length) return;
+  for (var i = 0; i < scriptsNotExecuted.length; i++) {
+    var comment = document.createComment(scriptsNotExecuted[i].outerHTML)
+    scriptsNotExecuted[i].parentElement.replaceChild(comment, scriptsNotExecuted[i])
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

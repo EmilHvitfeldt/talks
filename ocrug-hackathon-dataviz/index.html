@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Data visualization with ggplot2</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Emil Hvitfeldt" />
+    <meta name="date" content="2019-11-09" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="theme.css" type="text/css" />
+    <link rel="stylesheet" href="colors.css" type="text/css" />
+    <link rel="stylesheet" href="text-sizing.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, title-slide
+
+# Data visualization with ggplot2
+## OCRUG Hackathon 2019-11
+### Emil Hvitfeldt
+### 2019-11-09
+
+---
+
+
+
+
+.center[![:scale 45%](https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/ggplot2.png)]
+
+---
+
+# Overview
+
+- Structure
+- Aesthetics
+- Geometric objects
+- Position adjustments
+- Themes
+- Extensions
+
+---
+
+# Data - mtcars
+
+
+```r
+dplyr::glimpse(mtcars)
+```
+
+```
+## Observations: 32
+## Variables: 11
+## $ mpg  &lt;dbl&gt; 21.0, 21.0, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4, 22.8, 19.2, 17.8…
+## $ cyl  &lt;dbl&gt; 6, 6, 4, 6, 8, 6, 8, 4, 4, 6, 6, 8, 8, 8, 8, 8, 8, 4, 4, 4, 4, 8…
+## $ disp &lt;dbl&gt; 160.0, 160.0, 108.0, 258.0, 360.0, 225.0, 360.0, 146.7, 140.8, 1…
+## $ hp   &lt;dbl&gt; 110, 110, 93, 110, 175, 105, 245, 62, 95, 123, 123, 180, 180, 18…
+## $ drat &lt;dbl&gt; 3.90, 3.90, 3.85, 3.08, 3.15, 2.76, 3.21, 3.69, 3.92, 3.92, 3.92…
+## $ wt   &lt;dbl&gt; 2.620, 2.875, 2.320, 3.215, 3.440, 3.460, 3.570, 3.190, 3.150, 3…
+## $ qsec &lt;dbl&gt; 16.46, 17.02, 18.61, 19.44, 17.02, 20.22, 15.84, 20.00, 22.90, 1…
+## $ vs   &lt;dbl&gt; 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0…
+## $ am   &lt;dbl&gt; 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0…
+## $ gear &lt;dbl&gt; 4, 4, 4, 3, 3, 3, 3, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 4, 4, 4, 3, 3…
+## $ carb &lt;dbl&gt; 4, 4, 1, 1, 2, 1, 4, 2, 2, 4, 4, 3, 3, 3, 4, 4, 4, 1, 2, 1, 1, 2…
+```
+
+???
+
+Fuel economy data from 1999 and 2008 for 38 popular models of car
+Description
+This dataset contains a subset of the fuel economy data that the EPA makes available on http://fueleconomy.gov. It contains only models which had a new release every year between 1999 and 2008 - this was used as a proxy for the popularity of the car
+
+---
+
+# Structure
+
+.pull-left[
+
+```r
+library(ggplot2)
+```
+
+
+```r
+ggplot(mtcars, aes(disp, mpg)) + 
+  geom_point()
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# A graphing template
+
+
+```r
+ggplot(data = &lt;DATA&gt;, mapping = aes(&lt;MAPPINGS&gt;)) + 
+  &lt;GEOM_FUNCTION&gt;()
+```
+
+--
+
+- starts with `ggplot()`
+- geom function
+- mappings
+- composed with `+` instead of `%&gt;%`
+
+---
+
+# Aesthetics
+
+## The mapping between the data and the graphical parameters
+
+
+```r
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point()
+```
+
+the same as
+
+
+```r
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point()
+```
+
+---
+
+
+```r
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(displ, hwy, size = cty)) + 
+  geom_point()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(displ, hwy, color = cty)) + 
+  geom_point()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(displ, hwy, color = class)) + 
+  geom_point()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(displ, hwy, color = class, size = cty)) + 
+  geom_point()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+
+
+```r
+ggplot(mpg) + 
+  geom_point(aes(displ, hwy, color = "blue"))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# I want the color!
+
+
+
+```r
+ggplot(mpg) + 
+  geom_point(aes(displ, hwy), color = "blue")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Geometric objects
+
+.pull-left[
+All starts with `geom_` and adds a layer to your chart
+
+
+```r
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+* geom_smooth()
+```
+]
+.pull-right[
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Geoms - 1 variable
+
+
+```r
+ggplot(mpg, aes(displ)) +
+  geom_density()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Geoms - 1 variable
+
+
+```r
+ggplot(mpg, aes(displ)) +
+* geom_dotplot(binwidth = 0.1)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Geoms - 1 variable
+
+
+```r
+ggplot(mpg, aes(displ)) +
+* geom_histogram(binwidth = 0.1)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Geoms - 1 variable
+
+
+```r
+ggplot(mpg, aes(displ)) +
+* geom_histogram(binwidth = 0.3)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  geom_smooth()
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-22-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(displ, hwy, color = drv)) + 
+  geom_point() +
+  geom_smooth()
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-23-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point(aes(color = drv)) +
+  geom_smooth()
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-24-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  geom_smooth(aes(color = drv))
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-25-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Position adjustments
+
+
+```r
+ggplot(mpg, aes(drv)) +
+  geom_bar()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(drv, color = fl)) +
+  geom_bar()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-27-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-28-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "fill")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "dodge")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-30-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Facets
+
+
+```r
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  facet_wrap(~drv)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-31-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  facet_grid(drv ~ fl)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-32-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  facet_grid(drv ~ fl) +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+# Themes
+
+All starts with `theme_`
+
+---
+
+
+```r
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "dodge") +
+* theme_minimal()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Recommend: ggthemr and ggthemes
+
+
+```r
+install.packages("ggthemes")
+
+remotes::install_github("cttobin/ggthemr")
+```
+
+---
+
+![](https://raw.githubusercontent.com/cttobin/ggthemr/master/README_files/figure-markdown_github/unnamed-chunk-5-1.png)
+
+---
+
+![](https://raw.githubusercontent.com/cttobin/ggthemr/master/README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+
+---
+
+![](https://raw.githubusercontent.com/cttobin/ggthemr/master/README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+
+---
+
+![](https://raw.githubusercontent.com/cttobin/ggthemr/master/README_files/figure-markdown_github/unnamed-chunk-10-1.png)
+
+---
+
+
+```r
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+* labs(title = "this is a fancy title",
+*      subtitle = "and subtitle",
+*      x = "Type of Drive",
+*      fill = "Fuel type")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-36-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "this is a fancy title",
+       subtitle = "and subtitle",
+       x = "Type of Drive",
+       fill = "Fuel type") + 
+  scale_fill_brewer(palette = "Set2")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-37-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+library(paletteer)
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "this is a fancy title",
+       subtitle = "and subtitle",
+       x = "Type of Drive",
+       fill = "Fuel type") + 
+  scale_fill_paletteer_d("nord::aurora")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-38-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Use dev version of paletteer &lt;img src='https://raw.githubusercontent.com/EmilHvitfeldt/paletteer/master/man/figures/logo.png' align="right" height="100" /&gt;
+
+
+```r
+remotes::install_github("EmilHvitfeldt/paletteer")
+```
+
+![](https://raw.githubusercontent.com/EmilHvitfeldt/paletteer/master/man/figures/paletteer-demo.gif)
+
+---
+
+.small[
+
+```r
+methods::formalArgs(theme)
+```
+
+```
+##  [1] "line"                       "rect"                      
+##  [3] "text"                       "title"                     
+##  [5] "aspect.ratio"               "axis.title"                
+##  [7] "axis.title.x"               "axis.title.x.top"          
+##  [9] "axis.title.x.bottom"        "axis.title.y"              
+## [11] "axis.title.y.left"          "axis.title.y.right"        
+## [13] "axis.text"                  "axis.text.x"               
+## [15] "axis.text.x.top"            "axis.text.x.bottom"        
+## [17] "axis.text.y"                "axis.text.y.left"          
+## [19] "axis.text.y.right"          "axis.ticks"                
+## [21] "axis.ticks.x"               "axis.ticks.x.top"          
+## [23] "axis.ticks.x.bottom"        "axis.ticks.y"              
+## [25] "axis.ticks.y.left"          "axis.ticks.y.right"        
+## [27] "axis.ticks.length"          "axis.ticks.length.x"       
+## [29] "axis.ticks.length.x.top"    "axis.ticks.length.x.bottom"
+## [31] "axis.ticks.length.y"        "axis.ticks.length.y.left"  
+## [33] "axis.ticks.length.y.right"  "axis.line"                 
+## [35] "axis.line.x"                "axis.line.x.top"           
+## [37] "axis.line.x.bottom"         "axis.line.y"               
+## [39] "axis.line.y.left"           "axis.line.y.right"         
+## [41] "legend.background"          "legend.margin"             
+## [43] "legend.spacing"             "legend.spacing.x"          
+## [45] "legend.spacing.y"           "legend.key"                
+## [47] "legend.key.size"            "legend.key.height"         
+## [49] "legend.key.width"           "legend.text"               
+## [51] "legend.text.align"          "legend.title"              
+## [53] "legend.title.align"         "legend.position"           
+## [55] "legend.direction"           "legend.justification"      
+## [57] "legend.box"                 "legend.box.just"           
+## [59] "legend.box.margin"          "legend.box.background"     
+## [61] "legend.box.spacing"         "panel.background"          
+## [63] "panel.border"               "panel.spacing"             
+## [65] "panel.spacing.x"            "panel.spacing.y"           
+## [67] "panel.grid"                 "panel.grid.major"          
+## [69] "panel.grid.minor"           "panel.grid.major.x"        
+## [71] "panel.grid.major.y"         "panel.grid.minor.x"        
+## [73] "panel.grid.minor.y"         "panel.ontop"               
+## [75] "plot.background"            "plot.title"                
+## [77] "plot.title.position"        "plot.subtitle"             
+## [79] "plot.caption"               "plot.caption.position"     
+## [81] "plot.tag"                   "plot.tag.position"         
+## [83] "plot.margin"                "strip.background"          
+## [85] "strip.background.x"         "strip.background.y"        
+## [87] "strip.placement"            "strip.text"                
+## [89] "strip.text.x"               "strip.text.y"              
+## [91] "strip.switch.pad.grid"      "strip.switch.pad.wrap"     
+## [93] "..."                        "complete"                  
+## [95] "validate"
+```
+]
+
+---
+
+# Extensions
+
+http://www.ggplot2-exts.org/gallery/
+
+---
+
+# gganimate &lt;img src='https://gganimate.com/reference/figures/logo.png' align="right" height="100" /&gt;
+
+![](https://gganimate.com/reference/figures/README-unnamed-chunk-4-1.gif)
+
+---
+
+# esquisse &lt;img src='https://raw.githubusercontent.com/dreamRs/esquisse/master/man/figures/logo_esquisse.png' align="right" height="100" /&gt;
+
+---
+
+.center[
+![:scale 60%](https://raw.githubusercontent.com/dreamRs/esquisse/master/man/figures/esquisse.gif)
+]
+
+
+---
+
+# Patchwork &lt;img src='https://raw.githubusercontent.com/thomasp85/patchwork/master/man/figures/logo.png' align="right" height="100" /&gt;
+
+
+```r
+devtools::install_github("thomasp85/patchwork")
+```
+
+
+---
+
+
+```r
+library(patchwork)
+
+p1 &lt;- ggplot(mtcars) + geom_point(aes(mpg, disp))
+p2 &lt;- ggplot(mtcars) + geom_boxplot(aes(gear, disp, group = gear))
+
+p1 + p2
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-42-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+.center[
+![:scale 80%](https://timogrossenbacher.ch/wp-content/uploads/2016/12/tm-final-map-1-1.png)
+]
+
+???
+
+https://timogrossenbacher.ch/2016/12/beautiful-thematic-maps-with-ggplot2-only/
+
+---
+
+.center[
+![](https://revolution-computing.typepad.com/.a/6a010534b1db25970b01b8d0c5640c970c-pi)
+]
+
+???
+
+https://rpubs.com/bradleyboehmke/weather_graphic
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  /* Replace <script> tags in slides area to make them executable
+   *
+   * Runs after post-processing of markdown source into slides and replaces only
+   * <script>s on the last slide of continued slides using the .has-continuation
+   * class added by xaringan. Finally, any <script>s in the slides area that
+   * aren't executed are commented out.
+   */
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container:not(.has-continuation) script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+  var scriptsNotExecuted = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container.has-continuation script'
+  );
+  if (!scriptsNotExecuted.length) return;
+  for (var i = 0; i < scriptsNotExecuted.length; i++) {
+    var comment = document.createComment(scriptsNotExecuted[i].outerHTML)
+    scriptsNotExecuted[i].parentElement.replaceChild(comment, scriptsNotExecuted[i])
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

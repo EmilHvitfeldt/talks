@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Building a package that fits into an evolving ecosystem</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Emil Hvitfeldt" />
+    <meta name="date" content="2019-11-19" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/font-awesome-5.3.1/css/fontawesome-all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="theme.css" type="text/css" />
+    <link rel="stylesheet" href="colors.css" type="text/css" />
+    <link rel="stylesheet" href="text-sizing.css" type="text/css" />
+    <link rel="stylesheet" href="nyx.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, title-slide
+
+# Building a package that fits into an evolving ecosystem
+## OCRUG
+### Emil Hvitfeldt
+### 2019-11-19
+
+---
+
+
+
+
+class: listfillpage
+# Overview
+
+.listfill[
+- Open Source Software Development
+- My journey
+- What I learned
+]
+
+This talk is based on anecdotes, I dearly hope that they generalize!
+
+---
+
+# As a new developer it can be hard to find problems that are:
+
+- Easy enough for you do
+- Prominent enough that they are worth solving
+
+## My advice
+
+- Keep list of ideas
+- Google early and often about implementations
+
+Working on a implentation can still be fruitful even if it doesn't end up on CRAN.
+
+---
+
+.center[
+![:scale 80%](images/5mins.png)
+]
+
+---
+
+.center[
+![:scale 90%](images/standard.png)
+]
+
+---
+
+# Look for Github tags
+
+![](images/help-wanted-1.png)
+
+![](images/help-wanted-2.png)
+
+![:scale 70%](images/help-wanted-3.png)
+
+---
+
+![](images/gif-github-tags.gif)
+
+---
+
+# Ask before starting the work
+
+Makes sure that:
+
+- you are not doing the same work as someone else
+- the work is wanted
+
+---
+
+.center[
+![:scale 85%](images/recipes.png)
+]
+
+Artwork by @allison_horst
+
+---
+
+# Github Projects
+
+.center[
+![](images/project.png)
+]
+
+---
+
+.center[
+![:scale 80%](images/mememe.gif)
+]
+
+---
+
+![](images/first-issue.png)
+
+---
+class: no-padding
+![](images/flowchart.png)
+
+---
+
+# Challenges
+
+- inherent messy structure of text
+- steps don't have specified order
+
+--
+
+# Design choice
+
+## Flexibility &gt; Speed
+
+---
+
+![](images/flowchart2.png)
+
+---
+
+&lt;style type="text/css"&gt;
+.code40 {
+  font-size: 40%;
+}
+&lt;/style&gt;
+
+.pull-left[
+.code40[
+
+```r
+step_stem &lt;-
+  function(recipe,
+           ...,
+           role = NA,
+           trained = FALSE,
+           columns = NULL,
+           options = list(),
+           custom_stemmer = NULL,
+           skip = FALSE,
+           id = rand_id("stem")
+  ) {
+    add_step(
+      recipe,
+      step_stem_new(
+        terms = ellipse_check(...),
+        role = role,
+        trained = trained,
+        options = options,
+        custom_stemmer = custom_stemmer,
+        columns = columns,
+        skip = skip,
+        id = id
+      )
+    )
+  }
+
+step_stem_new &lt;-
+  function(terms, role, trained, columns, options, custom_stemmer, skip, id) {
+    step(
+      subclass = "stem",
+      terms = terms,
+      role = role,
+      trained = trained,
+      columns = columns,
+      options = options,
+      custom_stemmer = custom_stemmer,
+      skip = skip,
+      id = id
+    )
+  }
+
+prep.step_stem &lt;- function(x, training, info = NULL, ...) {
+  col_names &lt;- terms_select(x$terms, info = info)
+
+  check_list(training[, col_names])
+
+  step_stem_new(
+    terms = x$terms,
+    role = x$role,
+    trained = TRUE,
+    columns = col_names,
+    options = x$options,
+    custom_stemmer = x$custom_stemmer,
+    skip = x$skip,
+    id = x$id
+  )
+}
+```
+]
+]
+
+.pull-right[
+.code40[
+
+```r
+bake.step_stem &lt;- function(object, new_data, ...) {
+  col_names &lt;- object$columns
+
+  stem_fun &lt;- object$custom_stemmer %||%
+    SnowballC::wordStem
+
+  for (i in seq_along(col_names)) {
+    stemmed_text &lt;- map(new_data[, col_names[i], drop = TRUE],
+                        stem_fun)
+
+    new_data[, col_names[i]] &lt;- tibble(stemmed_text)
+  }
+  new_data &lt;- factor_to_text(new_data, col_names)
+  as_tibble(new_data)
+}
+
+print.step_stem &lt;-
+  function(x, width = max(20, options()$width - 30), ...) {
+    cat("Stemming for ", sep = "")
+    printer(x$columns, x$terms, x$trained, width = width)
+    invisible(x)
+}
+
+tidy.step_stem &lt;- function(x, ...) {
+  if (is_trained(x)) {
+    res &lt;- tibble(terms = x$terms,
+                  is_custom_stemmer = is.null(x$custom_stemmer))
+  } else {
+    term_names &lt;- sel2char(x$terms)
+    res &lt;- tibble(terms = term_names,
+                  value = na_chr)
+  }
+  res$id &lt;- x$id
+  res
+}
+```
+]
+]
+
+---
+
+&lt;style type="text/css"&gt;
+.code40 {
+  font-size: 40%;
+}
+&lt;/style&gt;
+
+.pull-left[
+.code40[
+
+```r
+step_stem &lt;-
+  function(recipe,
+           ...,
+           role = NA,
+           trained = FALSE,
+           columns = NULL,
+           options = list(),
+           custom_stemmer = NULL,
+           skip = FALSE,
+           id = rand_id("stem")
+  ) {
+    add_step(
+      recipe,
+      step_stem_new(
+        terms = ellipse_check(...),
+        role = role,
+        trained = trained,
+        options = options,
+        custom_stemmer = custom_stemmer,
+        columns = columns,
+        skip = skip,
+        id = id
+      )
+    )
+  }
+
+step_stem_new &lt;-
+  function(terms, role, trained, columns, options, custom_stemmer, skip, id) {
+    step(
+      subclass = "stem",
+      terms = terms,
+      role = role,
+      trained = trained,
+      columns = columns,
+      options = options,
+      custom_stemmer = custom_stemmer,
+      skip = skip,
+      id = id
+    )
+  }
+
+prep.step_stem &lt;- function(x, training, info = NULL, ...) {
+  col_names &lt;- terms_select(x$terms, info = info)
+
+  check_list(training[, col_names])
+
+  step_stem_new(
+    terms = x$terms,
+    role = x$role,
+    trained = TRUE,
+    columns = col_names,
+    options = x$options,
+    custom_stemmer = x$custom_stemmer,
+    skip = x$skip,
+    id = x$id
+  )
+}
+```
+]
+]
+
+.pull-right[
+.code40[
+
+```r
+bake.step_stem &lt;- function(object, new_data, ...) {
+* col_names &lt;- object$columns
+*  
+* stem_fun &lt;- object$custom_stemmer %||%
+*   SnowballC::wordStem
+*  
+* for (i in seq_along(col_names)) {
+*   stemmed_text &lt;- map(new_data[, col_names[i], drop = TRUE],
+*                       stem_fun)
+*  
+*   new_data[, col_names[i]] &lt;- tibble(stemmed_text)
+* }
+* new_data &lt;- factor_to_text(new_data, col_names)
+* as_tibble(new_data)
+}
+
+print.step_stem &lt;-
+  function(x, width = max(20, options()$width - 30), ...) {
+    cat("Stemming for ", sep = "")
+    printer(x$columns, x$terms, x$trained, width = width)
+    invisible(x)
+}
+
+tidy.step_stem &lt;- function(x, ...) {
+  if (is_trained(x)) {
+    res &lt;- tibble(terms = x$terms,
+                  is_custom_stemmer = is.null(x$custom_stemmer))
+  } else {
+    term_names &lt;- sel2char(x$terms)
+    res &lt;- tibble(terms = term_names,
+                  value = na_chr)
+  }
+  res$id &lt;- x$id
+  res
+}
+```
+]
+]
+
+---
+
+# The bake step
+
+
+```r
+bake.step_stem &lt;- function(object, new_data, ...) {
+  col_names &lt;- object$columns 
+                          
+  stem_fun &lt;- object$custom_stemmer %||% 
+    SnowballC::wordStem 
+                         
+  for (i in seq_along(col_names)) { 
+    stemmed_text &lt;- map(new_data[, col_names[i], drop = TRUE], 
+                        stem_fun) 
+                         
+    new_data[, col_names[i]] &lt;- tibble(stemmed_text) 
+  } 
+  new_data &lt;- factor_to_text(new_data, col_names) 
+  as_tibble(new_data) 
+}
+```
+
+---
+
+# the traceback
+
+.pull-left[
+![:scale 100%](images/traceback.png)
+]
+
+.pull-right[
+- I call `prep()`
+- `prep()` calls `prep.recipe()`
+- `prep.recipe()` calls `bake()` in a loop
+- `bake()` calls `bake.step_stem()`
+
+quite a few levels deep.
+]
+
+---
+
+# Browser to the rescue
+
+![:scale 80%](images/browser.gif)
+
+---
+
+# Plenty of follow up
+
+![](images/followup.gif)
+
+---
+
+# Don't reinvent the wheel
+
+textrecipes stands on the shoulders of
+
+- recipe (obviously)
+- tokenizers
+- SnowballC
+- stopwords
+- text2vec
+- textfeatures
+
+---
+
+# My biggest git mistake
+
+![](images/big-git.png)
+
+---
+
+# The reward - joined my first organization
+
+![](images/tidymodels-org.png)
+
+---
+
+# The reward - CRAN releases
+
+![:scale 70%](images/releases.png)
+
+---
+
+# The reward - Post on tidyverse.org
+
+![](images/tidyverse.png)
+
+---
+
+class: center, middle
+
+# Thank you!
+
+### <i class="fab  fa-github "></i> [EmilHvitfeldt](https://github.com/EmilHvitfeldt/)
+### <i class="fab  fa-twitter "></i> [@Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)
+### <i class="fab  fa-linkedin "></i> [emilhvitfeldt](linkedin.com/in/emilhvitfeldt/)
+### <i class="fas  fa-laptop "></i> [www.hvitfeldt.me](www.hvitfeldt.me)
+
+
+
+Slides created via the R package [xaringan](https://github.com/yihui/xaringan).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  /* Replace <script> tags in slides area to make them executable
+   *
+   * Runs after post-processing of markdown source into slides and replaces only
+   * <script>s on the last slide of continued slides using the .has-continuation
+   * class added by xaringan. Finally, any <script>s in the slides area that
+   * aren't executed are commented out.
+   */
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container:not(.has-continuation) script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+  var scriptsNotExecuted = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container.has-continuation script'
+  );
+  if (!scriptsNotExecuted.length) return;
+  for (var i = 0; i < scriptsNotExecuted.length; i++) {
+    var comment = document.createComment(scriptsNotExecuted[i].outerHTML)
+    scriptsNotExecuted[i].parentElement.replaceChild(comment, scriptsNotExecuted[i])
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

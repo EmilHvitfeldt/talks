@@ -1,0 +1,593 @@
+---
+title: "Working with tidymodels"
+subtitle: "OCRUG meetup"
+author: "Emil Hvitfeldt"
+date: "2019-1-29"
+output:
+  xaringan::moon_reader:
+    css: ["default", "theme.css", "colors.css"]
+    lib_dir: libs
+    nature:
+      beforeInit: "macros.js"
+      ratio: "16:9"
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      titleSlideClass: [center, middle]
+---
+
+```{r include=FALSE}
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+  lines <- options$output.lines
+  if (is.null(lines)) {
+    return(hook_output(x, options))  # pass to default hook
+  }
+  x <- unlist(strsplit(x, "\n"))
+  more <- "..."
+  if (length(lines) == 1) {        # first n lines
+    if (length(x) > lines) {
+      # truncate the output, but add ....
+      x <- c(head(x, lines), more)
+    }
+  } else {
+    x <- c(more, x[lines], more)
+  }
+  # paste these lines together
+  x <- paste(c(x, ""), collapse = "\n")
+  hook_output(x, options)
+})
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+opts_chunk$set(
+  echo = TRUE,
+  fig.width = 7, 
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px")
+```
+
+`tidymodels` is a "meta-package" for modeling and statistical analysis that share the underlying design philosophy, grammar, and data structures of the tidyverse.
+
+.left-column[
+![](https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/tidymodels.png)
+]
+
+.right-column[
+```{r, message=FALSE}
+library(tidymodels)
+```
+
+```{r echo=TRUE}
+## ✔ broom     0.5.1          ✔ purrr     0.3.0     
+## ✔ dials     0.0.2          ✔ recipes   0.1.4     
+## ✔ dplyr     0.7.8          ✔ rsample   0.0.4     
+## ✔ ggplot2   3.1.0          ✔ tibble    2.0.1     
+## ✔ infer     0.4.0          ✔ yardstick 0.0.2     
+## ✔ parsnip   0.0.1.9000
+```
+]
+
+---
+
+# The packages
+
+.pull-left[
+- broom
+- dials
+- dplyr
+- ggplot2
+- infer
+- parsnip
+]
+
+.pull-right[
+- purrr
+- recipes
+- rsample
+- tibble
+- yardstick
+]
+
+---
+
+# The packages (tidyverse)
+
+.pull-left[
+- broom
+- dials
+- **dplyr**
+- **ggplot2**
+- infer
+- parsnip
+]
+
+.pull-right[
+- **purrr**
+- recipes
+- rsample
+- **tibble**
+- yardstick
+]
+
+---
+
+# The packages (tidyverse)
+
+.pull-left[
+- broom
+- dials
+- **.light[dplyr]**
+- **.light[ggplot2]**
+- infer
+- parsnip
+]
+
+.pull-right[
+- **.light[purrr]**
+- recipes
+- rsample
+- **.light[tibble]**
+- yardstick
+]
+
+---
+
+# The packages
+
+.pull-left[
+- **.light[broom]**
+- **.light[dials]**
+- **.light[dplyr]**
+- **.light[ggplot2]**
+-  **.light[infer]**
+- **parsnip**
+]
+
+.pull-right[
+- **.light[purrr]**
+- **recipes**
+- **rsample**
+- **.light[tibble]**
+- **yardstick**
+]
+
+---
+
+# ⚠️ Disclaimer ⚠️
+
+This talk is not designed to give opinions with respect to modeling best practices.
+
+This talk is designed to showcase what packages are available and what they can do.
+
+---
+
+# Consider 32 cars from 1973-74
+
+```{r}
+head(mtcars)
+```
+
+---
+
+```{r, warning=FALSE}
+model_glm <- glm(am ~ disp + drat + qsec, data = mtcars, 
+                 family = "binomial")
+```
+
+--
+
+```{r}
+predict(model_glm)
+```
+
+---
+
+```{r, eval=FALSE, message=FALSE}
+library(glmnet)
+model_glmnet <- glmnet(am ~ disp + drat + qsec, data = mtcars, 
+                       family = "binomial")
+```
+
+--
+
+```{r, warnings=TRUE, error=TRUE, echo=FALSE}
+library(glmnet)
+model_glmnet <- glmnet(am ~ disp + drat + qsec, data = mtcars, 
+                       family = "binomial")
+```
+
+--
+
+<br>
+
+```{r, eval=FALSE}
+model_glmnet <- glmnet(x = as.matrix(mtcars[, c("disp", "drat", "qsec")]),
+                       y = mtcars[, "am"],
+                       family = "binomial")
+```
+
+--
+
+<br>
+
+```{r, eval=FALSE}
+model_glm <- glm(x = as.matrix(mtcars[, c("disp", "drat", "qsec")]),
+                 y = mtcars[, "am"],
+                 family = "binomial")
+```
+
+--
+
+```{r, warning=FALSE, error=TRUE, echo=FALSE}
+model_glm <- glm(x = as.matrix(mtcars[, c("disp", "drat", "qsec")]),
+                 y = mtcars[, "am"],
+                 family = "binomial")
+```
+
+---
+
+# User-facing problems in modeling in R
+
+- Data must be a matrix (except when it needs to be a data.frame)
+- Must use formula or x/y (or both)
+- Inconsistent naming of arguments (ntree in randomForest, num.trees in ranger)
+- na.omit explicitly or silently
+- May or may not accept factors
+
+--
+
+.center[![](https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/155/tired-face_1f62b.png)]
+
+---
+
+# Syntax for Computing Predicted Class Probabilities
+
+|Function     |Package      |Code                                       |
+|:------------|:------------|:------------------------------------------|
+|`lda`        |`MASS`       |`predict(obj)`                             |
+|`glm`        |`stats`      |`predict(obj, type = "response")`          |
+|`gbm`        |`gbm`        |`predict(obj, type = "response", n.trees)` |
+|`mda`        |`mda`        |`predict(obj, type = "posterior")`         |
+|`rpart`      |`rpart`      |`predict(obj, type = "prob")`              |
+|`Weka`       |`RWeka`      |`predict(obj, type = "probability")`       |
+|`logitboost` |`LogitBoost` |`predict(obj, type = "raw", nIter)`        |
+
+blatantly stolen from Max Kuhn
+
+---
+
+![:scale 50%](https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/parsnip.png)
+
+---
+
+The goals of `parsnip` is...  
+
+- Decouple the *model classification* from the *computational engine*
+- Separate the definition of a model from its evaluation
+- Harmonize argument names
+- Make consistent predictions (always tibbles with na.omit=FALSE)
+
+---
+
+```{r, warning=FALSE}
+model_glm <- glm(am ~ disp + drat + qsec, data = mtcars, 
+                 family = "binomial")
+```
+
+---
+
+```{r}
+library(parsnip)
+model_glm <- logistic_reg(mode = "classification") %>%
+  set_engine("glm")
+
+model_glm
+```
+
+--
+
+```{r, warning=FALSE}
+fit_glm <- model_glm %>%
+  fit(factor(am) ~ disp + drat + qsec, data = mtcars)
+```
+
+???
+decision_tree(), linear_reg(), logistic_reg(), rand_forest(), svm_poly()
+
+---
+
+```{r}
+library(parsnip)
+model_glmnet <- logistic_reg(mode = "classification") %>%
+  set_engine("glmnet")
+model_glmnet
+```
+
+```{r, warning=FALSE}
+fit_glmnet <- model_glmnet %>%
+  fit(factor(am) ~ disp + drat + qsec, data = mtcars)
+```
+
+---
+
+### Using both formula and x/y
+
+#### Formula
+```{r, warning=FALSE}
+fit_glm <- model_glm %>%
+  fit(factor(am) ~ ., data = mtcars)
+```
+
+#### x/y
+```{r, warning=FALSE}
+fit_glm <- model_glm %>%
+  fit_xy(x = as.matrix(mtcars[, c("disp", "drat", "qsec")]),
+         y = factor(mtcars[, "am"]), 
+         data = mtcars)
+```
+
+---
+
+# Tidy prediction
+
+```{r}
+predict(fit_glm, mtcars)
+```
+
+---
+
+Consider now that we wanted to model a more advanded relation ship between variables
+
+```{r, eval=FALSE}
+fit_glm <- model_glm %>%
+  fit(factor(am) ~ poly(mpg, 3) + pca(disp:wt)[1] + pca(disp:wt)[2] + pca(disp:wt)[3], 
+      data = mtcars)
+```
+
+--
+
+- Not all inline functions can be used with formulas
+- Having to run some calculations many many times
+- Connected to the model, calculations are not saved between models
+
+Post by Max Kuhn about the bad sides of formula
+https://rviews.rstudio.com/2017/03/01/the-r-formula-method-the-bad-parts/
+
+---
+
+![:scale 45%](https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/recipes.png)
+
+???
+
+Preprocessing - statistics  
+Feature engineering - Computer Science
+
+---
+
+### Preprocessing steps
+
+Some of things you may need to deal with before you can start modeling
+
+- Same unit (center and scale)
+- Remove correlation (filter and PCA extraction)
+- Missing data (imputation)
+- Dummy varibles
+- Zero Variance
+
+---
+
+### Same units
+
+```{r}
+library(recipes)
+car_rec <- recipe(mpg ~ ., mtcars) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())
+```
+
+### PCA
+
+```{r}
+library(recipes)
+car_rec <- recipe(mpg ~ ., mtcars) %>%
+  step_pca(all_predictors(), threshold = 0.8)
+```
+
+### Any combination of steps
+
+```{r}
+car_rec <- recipe(mpg ~ ., mtcars) %>%
+  step_knnimpute(drat, wt, neighbors = 5) %>%
+  step_zv(all_predictors()) %>%
+  step_pca(all_predictors(), threshold = 0.8)
+```
+
+---
+
+```{r}
+library(recipes)
+car_rec <- recipe(mpg ~ ., mtcars) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())
+```
+
+--
+
+```{r}
+car_rec
+```
+
+---
+
+```{r}
+library(recipes)
+car_rec <- recipe(mpg ~ ., mtcars) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())
+
+car_preped <- prep(car_rec, training = mtcars)
+```
+
+--
+
+```{r, eval=FALSE}
+bake(car_preped, new_data = mtcars)
+```
+
+--
+
+```{r, echo=FALSE}
+bake(car_preped, new_data = mtcars)
+```
+
+---
+
+```{r}
+library(recipes)
+car_rec <- recipe(mpg ~ ., mtcars) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())
+
+car_preped <- prep(car_rec, training = mtcars)
+```
+
+```{r}
+juice(car_preped)
+```
+
+---
+
+<br>
+<br>
+<br>
+<br>
+<br>
+.huge[
+.center[
+```{r, eval=FALSE}
+recipe -> prepare -> bake/juice
+
+(define) -> (estimate) -> (apply)
+```
+]
+]
+
+---
+
+## Types of data splitting
+
+- Random
+- By date
+- By outcome
+    - Classification: within class
+    - regression: within quantile
+    
+---
+
+## Training and Testing sets
+
+```{r}
+library(rsample)
+
+car_preped <- prep(car_rec, training = mtcars)
+```
+
+---
+
+![:scale 45%](https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/rsample.png)
+
+---
+
+## Training and Testing sets
+
+```{r}
+library(rsample)
+
+set.seed(4595)
+
+# These slides were almost finished and I didn't want to change the data in all the other slides
+big_mtcars <- rerun(10, mtcars) %>%
+  bind_rows()
+
+data_split <- initial_split(big_mtcars, strata = "mpg", p = 0.80)
+
+# Training and test data
+cars_train <- training(data_split)
+cars_test  <- testing(data_split)
+
+car_prep <- prep(car_rec, training = cars_train)
+
+# Preprocessed data
+cars_train_p <- juice(car_prep)
+cars_test_p <- bake(car_prep, new_data = cars_test)
+```
+
+---
+
+![:scale 45%](https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/yardstick.png)
+
+---
+
+```{r}
+library(yardstick)
+head(two_class_example)
+```
+
+--
+
+```{r}
+metrics(two_class_example, truth = truth, estimate = predicted)
+```
+
+---
+
+```{r}
+library(yardstick)
+head(two_class_example)
+```
+
+```{r}
+accuracy(two_class_example, truth = truth, estimate = predicted)
+```
+
+---
+
+```{r}
+library(yardstick)
+head(two_class_example)
+```
+
+```{r}
+j_index(two_class_example, truth = truth, estimate = predicted)
+```
+
+And many more!!
+
+---
+
+```{r}
+library(yardstick)
+head(two_class_example)
+```
+
+```{r}
+conf_mat(two_class_example, truth = truth, estimate = predicted)
+```
+
+---
+
+```{r}
+roc_curve(two_class_example, truth = truth, Class1) %>%
+  autoplot()
+```

@@ -1,0 +1,509 @@
+---
+title: "Data visualization with ggplot2"
+subtitle: "OCRUG Hackathon 2019-11"
+author: "Emil Hvitfeldt"
+date: "2019-11-09"
+output:
+  xaringan::moon_reader:
+    css: ["default", "theme.css", "colors.css", "text-sizing.css"]
+    lib_dir: libs
+    nature:
+      beforeInit: "macros.js"
+      ratio: "16:9"
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      titleSlideClass: [center, middle]
+---
+
+```{r include=FALSE}
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+  lines <- options$output.lines
+  if (is.null(lines)) {
+    return(hook_output(x, options))  # pass to default hook
+  }
+  x <- unlist(strsplit(x, "\n"))
+  more <- "..."
+  if (length(lines) == 1) {        # first n lines
+    if (length(x) > lines) {
+      # truncate the output, but add ....
+      x <- c(head(x, lines), more)
+    }
+  } else {
+    x <- c(more, x[lines], more)
+  }
+  # paste these lines together
+  x <- paste(c(x, ""), collapse = "\n")
+  hook_output(x, options)
+})
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+opts_chunk$set(
+  echo = TRUE,
+  fig.width = 7, 
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px")
+```
+
+.center[![:scale 45%](https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/ggplot2.png)]
+
+---
+
+# Overview
+
+- Structure
+- Aesthetics
+- Geometric objects
+- Position adjustments
+- Themes
+- Extensions
+
+---
+
+# Data - mtcars
+
+```{r}
+dplyr::glimpse(mtcars)
+```
+
+???
+
+Fuel economy data from 1999 and 2008 for 38 popular models of car
+Description
+This dataset contains a subset of the fuel economy data that the EPA makes available on http://fueleconomy.gov. It contains only models which had a new release every year between 1999 and 2008 - this was used as a proxy for the popularity of the car
+
+---
+
+# Structure
+
+.pull-left[
+```{r}
+library(ggplot2)
+```
+
+```{r, eval=FALSE}
+ggplot(mtcars, aes(disp, mpg)) + 
+  geom_point()
+```
+]
+
+.pull-right[
+```{r echo=FALSE}
+ggplot(mtcars, aes(disp, mpg)) + 
+  geom_point()
+```
+]
+
+---
+
+# A graphing template
+
+```{r, eval=FALSE}
+ggplot(data = <DATA>, mapping = aes(<MAPPINGS>)) + 
+  <GEOM_FUNCTION>()
+```
+
+--
+
+- starts with `ggplot()`
+- geom function
+- mappings
+- composed with `+` instead of `%>%`
+
+---
+
+# Aesthetics
+
+## The mapping between the data and the graphical parameters
+
+```{r, eval=FALSE}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point()
+```
+
+the same as
+
+```{r, eval=FALSE}
+ggplot(mpg, aes(x = displ, y = hwy)) + 
+  geom_point()
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point()
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(displ, hwy, size = cty)) + 
+  geom_point()
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(displ, hwy, color = cty)) + 
+  geom_point()
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(displ, hwy, color = class)) + 
+  geom_point()
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(displ, hwy, color = class, size = cty)) + 
+  geom_point()
+```
+
+---
+
+
+
+```{r}
+ggplot(mpg) + 
+  geom_point(aes(displ, hwy, color = "blue"))
+```
+
+---
+
+# I want the color!
+
+
+```{r}
+ggplot(mpg) + 
+  geom_point(aes(displ, hwy), color = "blue")
+```
+
+---
+
+# Geometric objects
+
+.pull-left[
+All starts with `geom_` and adds a layer to your chart
+
+```{r, eval=FALSE}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  geom_smooth() #<<
+```
+]
+.pull-right[
+```{r, echo=FALSE}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  geom_smooth()
+```
+]
+
+---
+
+# Geoms - 1 variable
+
+```{r}
+ggplot(mpg, aes(displ)) +
+  geom_density()
+```
+
+---
+
+# Geoms - 1 variable
+
+```{r}
+ggplot(mpg, aes(displ)) +
+  geom_dotplot(binwidth = 0.1) #<<
+```
+
+---
+
+# Geoms - 1 variable
+
+```{r}
+ggplot(mpg, aes(displ)) +
+  geom_histogram(binwidth = 0.1) #<<
+```
+
+---
+
+# Geoms - 1 variable
+
+```{r}
+ggplot(mpg, aes(displ)) +
+  geom_histogram(binwidth = 0.3) #<<
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  geom_smooth()
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(displ, hwy, color = drv)) + 
+  geom_point() +
+  geom_smooth()
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point(aes(color = drv)) +
+  geom_smooth()
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  geom_smooth(aes(color = drv))
+```
+
+---
+
+# Position adjustments
+
+```{r}
+ggplot(mpg, aes(drv)) +
+  geom_bar()
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(drv, color = fl)) +
+  geom_bar()
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar()
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "fill")
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "dodge")
+```
+
+---
+
+# Facets
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  facet_wrap(~drv)
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  facet_grid(drv ~ fl)
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + 
+  geom_point() +
+  facet_grid(drv ~ fl) +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+
+---
+
+# Themes
+
+All starts with `theme_`
+
+---
+
+```{r}
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() #<<
+```
+
+---
+
+# Recommend: ggthemr and ggthemes
+
+```{r, eval=FALSE}
+install.packages("ggthemes")
+
+remotes::install_github("cttobin/ggthemr")
+```
+
+---
+
+![](https://raw.githubusercontent.com/cttobin/ggthemr/master/README_files/figure-markdown_github/unnamed-chunk-5-1.png)
+
+---
+
+![](https://raw.githubusercontent.com/cttobin/ggthemr/master/README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+
+---
+
+![](https://raw.githubusercontent.com/cttobin/ggthemr/master/README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+
+---
+
+![](https://raw.githubusercontent.com/cttobin/ggthemr/master/README_files/figure-markdown_github/unnamed-chunk-10-1.png)
+
+---
+
+```{r}
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "this is a fancy title", #<<
+       subtitle = "and subtitle", #<<
+       x = "Type of Drive", #<<
+       fill = "Fuel type") #<<
+```
+
+---
+
+```{r}
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "this is a fancy title",
+       subtitle = "and subtitle",
+       x = "Type of Drive",
+       fill = "Fuel type") + 
+  scale_fill_brewer(palette = "Set2")
+```
+
+---
+
+```{r}
+library(paletteer)
+ggplot(mpg, aes(drv, fill = fl)) +
+  geom_bar(position = "dodge") +
+  theme_minimal() +
+  labs(title = "this is a fancy title",
+       subtitle = "and subtitle",
+       x = "Type of Drive",
+       fill = "Fuel type") + 
+  scale_fill_paletteer_d("nord::aurora")
+```
+
+---
+
+# Use dev version of paletteer <img src='https://raw.githubusercontent.com/EmilHvitfeldt/paletteer/master/man/figures/logo.png' align="right" height="100" />
+
+```{r, eval=FALSE}
+remotes::install_github("EmilHvitfeldt/paletteer")
+```
+
+![](https://raw.githubusercontent.com/EmilHvitfeldt/paletteer/master/man/figures/paletteer-demo.gif)
+
+---
+
+.small[
+```{r}
+methods::formalArgs(theme)
+```
+]
+
+---
+
+# Extensions
+
+http://www.ggplot2-exts.org/gallery/
+
+---
+
+# gganimate <img src='https://gganimate.com/reference/figures/logo.png' align="right" height="100" />
+
+![](https://gganimate.com/reference/figures/README-unnamed-chunk-4-1.gif)
+
+---
+
+# esquisse <img src='https://raw.githubusercontent.com/dreamRs/esquisse/master/man/figures/logo_esquisse.png' align="right" height="100" />
+
+---
+
+.center[
+![:scale 60%](https://raw.githubusercontent.com/dreamRs/esquisse/master/man/figures/esquisse.gif)
+]
+
+
+---
+
+# Patchwork <img src='https://raw.githubusercontent.com/thomasp85/patchwork/master/man/figures/logo.png' align="right" height="100" />
+
+```{r, eval=FALSE}
+devtools::install_github("thomasp85/patchwork")
+```
+
+
+---
+
+```{r}
+library(patchwork)
+
+p1 <- ggplot(mtcars) + geom_point(aes(mpg, disp))
+p2 <- ggplot(mtcars) + geom_boxplot(aes(gear, disp, group = gear))
+
+p1 + p2
+```
+
+---
+
+.center[
+![:scale 80%](https://timogrossenbacher.ch/wp-content/uploads/2016/12/tm-final-map-1-1.png)
+]
+
+???
+
+https://timogrossenbacher.ch/2016/12/beautiful-thematic-maps-with-ggplot2-only/
+
+---
+
+.center[
+![](https://revolution-computing.typepad.com/.a/6a010534b1db25970b01b8d0c5640c970c-pi)
+]
+
+???
+
+https://rpubs.com/bradleyboehmke/weather_graphic
