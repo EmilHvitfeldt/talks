@@ -1,6 +1,3 @@
-
-PDF can be found [here](slides.pdf).
-
 Additional resources
 
 Usethis package  

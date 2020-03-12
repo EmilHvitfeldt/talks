@@ -15,7 +15,7 @@
 
 ## Happy Scientist Seminar - Building R Packages
 
-[Material](/happy-scientist_building-r-packages)
+[Material](/happy-scientist_building-r-packages)  
 [Slides](https://happyscientist-building-r-packages.netlify.com/)
 
 ## Happy Scientist Seminar - Debugging and Profiling

@@ -2,8 +2,6 @@
 
 This presentation will let you though a lot of different aspects of what you can do in R to make yourself happy, make sure that future you is happy, and avoid getting mad at past you. This presentation will have a quite small focus on the actual R code you will produce by having the focus be on how you interact with the R code itself, touching on topics such as style and reproducibility.  
 
-Slides can be found [here](https://rawcdn.githack.com/EmilHvitfeldt/oRganized-talk/209977121efa5d3a97d4fb86090b9c6dfcd9f6b0/2018-10-29_getting-organized-with-r.html)  
-
 #### General Resources
 
 [R for Data Science](http://r4ds.had.co.nz/)    
