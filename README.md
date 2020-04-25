@@ -6,6 +6,11 @@
 
 # 2020
 
+## Happy Scientist Seminar - Recipes
+
+[Material](/happy-scientist_recipes)  
+[Slides](https://happyscientist-recipes.netlify.app/)
+
 ## Happy Scientist Seminar - Git and Github
 
 [Material](/happy-scientist_git-and-github)  
