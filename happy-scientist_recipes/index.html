@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Reproducible preprocessing with recipes</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Emil Hvitfeldt" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, title-slide
+
+# Reproducible preprocessing with recipes
+## Happy Scientist Seminar
+### Emil Hvitfeldt
+### 2019-4-27
+
+---
+
+
+
+
+
+```
+## Loading required package: dplyr
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```
+## 
+## Attaching package: 'recipes'
+```
+
+```
+## The following object is masked from 'package:stats':
+## 
+##     step
+```
+
+<style>.orange {
+  color: #EF8633;
+}
+
+.blue {
+  color: #3381F7;
+}
+</style>
+
+&lt;br&gt;
+&lt;br&gt;
+
+## What happens to the data between `read_data()` and `fit_model()`?
+
+---
+
+## Prices of 54,000 round cut diamonds
+
+
+```r
+library(ggplot2)
+diamonds
+```
+
+```
+## # A tibble: 53,940 x 10
+##    carat cut       color clarity depth table price     x     y     z
+##    &lt;dbl&gt; &lt;ord&gt;     &lt;ord&gt; &lt;ord&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+##  1 0.23  Ideal     E     SI2      61.5    55   326  3.95  3.98  2.43
+##  2 0.21  Premium   E     SI1      59.8    61   326  3.89  3.84  2.31
+##  3 0.23  Good      E     VS1      56.9    65   327  4.05  4.07  2.31
+##  4 0.290 Premium   I     VS2      62.4    58   334  4.2   4.23  2.63
+##  5 0.31  Good      J     SI2      63.3    58   335  4.34  4.35  2.75
+##  6 0.24  Very Good J     VVS2     62.8    57   336  3.94  3.96  2.48
+##  7 0.24  Very Good I     VVS1     62.3    57   336  3.95  3.98  2.47
+##  8 0.26  Very Good H     SI1      61.9    55   337  4.07  4.11  2.53
+##  9 0.22  Fair      E     VS2      65.1    61   337  3.87  3.78  2.49
+## 10 0.23  Very Good H     VS1      59.4    61   338  4     4.05  2.39
+## # … with 53,930 more rows
+```
+
+---
+
+## Formula expression in modeling
+
+
+
+
+&lt;code class ='r hljs remark-code'&gt;model &lt;- lm(&lt;span style='color:#EF8633'&gt;price&lt;/span&gt; ~ &lt;span style='color:#3381F7'&gt;cut:color + carat + log(depth)&lt;/span&gt;, &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;data = diamonds)&lt;/code&gt;
+
+- Select .orange[outcome] &amp; .blue[predictors]
+
+---
+
+## Formula expression in modeling
+
+
+&lt;code class ='r hljs remark-code'&gt;model &lt;- lm(price ~ &lt;span style='color:#EF8633'&gt;cut:color&lt;/span&gt; + carat + log(depth), &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;data = diamonds)&lt;/code&gt;
+
+- Select outcome &amp; predictors
+- .orange[Operators] to matrix of predictors
+
+---
+
+## Formula expression in modeling
+
+
+&lt;code class ='r hljs remark-code'&gt;model &lt;- lm(price ~ cut:color + carat + &lt;span style='color:#EF8633'&gt;log(depth)&lt;/span&gt;, &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;data = diamonds)&lt;/code&gt;
+
+- Select outcome &amp; predictors
+- Operators to matrix of predictors
+- .orange[Inline functions]
+
+---
+
+## Work under the hood - model.matrix
+
+
+```r
+model.matrix(price ~ cut:color + carat + log(depth) + table, 
+             data = diamonds)
+```
+
+
+```
+## Rows: 53,940
+## Columns: 39
+## $ `(Intercept)`         &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+## $ carat                 &lt;dbl&gt; 0.23, 0.21, 0.23, 0.29, 0.31, 0.24, 0.24, 0.26,…
+## $ `log(depth)`          &lt;dbl&gt; 4.119037, 4.091006, 4.041295, 4.133565, 4.14788…
+## $ table                 &lt;dbl&gt; 55, 61, 65, 58, 58, 57, 57, 55, 61, 61, 55, 56,…
+## $ `cutFair:colorD`      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ `cutGood:colorD`      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ `cutVery Good:colorD` &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ `cutPremium:colorD`   &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ `cutIdeal:colorD`     &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ `cutFair:colorE`      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,…
+## $ `cutGood:colorE`      &lt;dbl&gt; 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+...
+```
+  
+---
+
+## Downsides
+
+- **Tidious typing with many variables**
+
+---
+
+## Downsides
+
+- Tedious typing with many variables
+- **Functions have to manually be applied to each variable**
+
+
+```r
+lm(y ~ log(x01) + log(x02) + log(x03) + log(x04) + log(x05) + log(x06) + log(x07) +
+       log(x08) + log(x09) + log(x10) + log(x11) + log(x12) + log(x13) + log(x14) + 
+       log(x15) + log(x16) + log(x17) + log(x18) + log(x19) + log(x20) + log(x21) + 
+       log(x22) + log(x23) + log(x24) + log(x25) + log(x26) + log(x27) + log(x28) + 
+       log(x29) + log(x30) + log(x31) + log(x32) + log(x33) + log(x34) + log(x35),
+   data = dat)
+```
+
+---
+
+## Downsides
+
+- Tedious typing with many variables
+- Functions have to manually be applied to each variable
+- **Operations are constrained to single columns**
+
+
+```r
+# Not possible
+lm(y ~ pca(x01, x02, x03, x04, x05), data = dat)
+```
+
+---
+
+## Downsides
+
+- Tedious typing with many variables
+- Functions have to manually be applied to each variable
+- Operations are constrained to single columns
+- **Everything happens at once**
+
+You can't apply multiple transformations to the same variable.
+
+---
+
+## Downsides
+
+- Tedious typing with many variables
+- Functions have to manually be applied to each variable
+- Operations are constrained to single columns
+- Everything happens at once
+- **Connected to the model, calculations are not saved between models**
+
+One could manually use `model.matrix` and pass the result to the modeling function.
+
+---
+
+.center[
+![:scale 45%](https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/recipes.png)
+]
+
+---
+
+# Recipes
+
+New package to deal with this problem
+
+### Benefits:
+
+- **Modular**
+
+---
+
+# Recipes
+
+New package to deal with this problem
+
+### Benefits:
+
+- Modular
+- **pipeable**
+
+---
+
+# Recipes
+
+New package to deal with this problem
+
+### Benefits:
+
+- Modular
+- pipeable
+- **Deferred evaluation**
+
+---
+
+# Recipes
+
+New package to deal with this problem
+
+### Benefits:
+
+- Modular
+- pipeable
+- Deferred evaluation
+- **Isolates test data from training data**
+
+---
+
+# Recipes
+
+New package to deal with this problem
+
+### Benefits:
+
+- Modular
+- pipeable
+- Deferred evaluation
+- Isolates test data from training data
+- **Can do things formulas can't**
+
+
+---
+
+# Modularity and pipeability
+
+
+```r
+price ~ cut + color + carat + log(depth) + table
+```
+
+Taking the formula from before we can rewrite it as the following recipe
+
+
+```r
+rec &lt;- recipe(price ~ cut + color + carat + depth + table, 
+              data = diamonds) %&gt;%
+  step_log(depth) %&gt;%
+  step_dummy(cut, color)
+```
+
+---
+
+# Modularity and pipeability
+
+
+```r
+price ~ cut + color + carat + log(depth) + table
+```
+
+Taking the formula from before we can rewrite it as the following recipe
+
+
+&lt;code class ='r hljs remark-code'&gt;rec &lt;- recipe(&lt;span style='color:#EF8633'&gt;price ~ cut + color + carat + depth + table&lt;/span&gt;, &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;data = diamonds) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_log(depth) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_dummy(cut, color)&lt;/code&gt;
+
+.orange[formula] expression to specify variables
+
+---
+
+# Modularity and pipeability
+
+
+```r
+price ~ cut + color + carat + log(depth) + table
+```
+
+Taking the formula from before we can rewrite it as the following recipe
+
+
+&lt;code class ='r hljs remark-code'&gt;rec &lt;- recipe(price ~ cut + color + carat + depth + table, &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;data = diamonds) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;&lt;span style='color:#EF8633'&gt;step_log(depth) %&gt;%&lt;/span&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;step_dummy(cut, color)&lt;/code&gt;
+
+then apply .orange[log] transformation on `depth`
+
+---
+
+# Modularity and pipeability
+
+
+```r
+price ~ cut + color + carat + log(depth) + table
+```
+
+Taking the formula from before we can rewrite it as the following recipe
+
+
+&lt;code class ='r hljs remark-code'&gt;rec &lt;- recipe(price ~ cut + color + carat + depth + table, &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;data = diamonds) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_log(depth) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;&lt;span style='color:#EF8633'&gt;step_dummy(cut, color)&lt;/span&gt;&lt;/code&gt;
+
+lastly we create .orange[dummy variables] from `cut` and `color`
+
+---
+
+## Deferred evaluation
+
+If we look at the recipe we created we don't see a dataset, but instead, we see a specification
+
+
+```r
+rec
+```
+
+```
+## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          5
+## 
+## Operations:
+## 
+## Log transformation on depth
+## Dummy variables from cut, color
+```
+
+---
+
+## Deferred evaluation
+
+**recipes** gives a specification of the intent of what we want to do.
+
+No calculations have been carried out yet.
+
+First we need to `prep()` the recipe. This will calculate the sufficient statistics needed to perform each of the steps. 
+
+
+```r
+prepped_rec &lt;- prep(rec)
+```
+
+---
+
+## Deferred evaluation
+
+
+```r
+prepped_rec
+```
+
+```
+## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          5
+## 
+## Training data contained 53940 data points and no missing data.
+## 
+## Operations:
+## 
+## Log transformation on depth [trained]
+## Dummy variables from cut, color [trained]
+```
+
+---
+
+# Baking
+
+After we have prepped the recipe we can `bake()` it to apply all the transformations
+
+
+```r
+bake(prepped_rec, new_data = diamonds)
+```
+
+
+```
+## Rows: 53,940
+## Columns: 14
+## $ carat   &lt;dbl&gt; 0.23, 0.21, 0.23, 0.29, 0.31, 0.24, 0.24, 0.26, 0.22, 0.23, 0…
+## $ depth   &lt;dbl&gt; 4.119037, 4.091006, 4.041295, 4.133565, 4.147885, 4.139955, 4…
+## $ table   &lt;dbl&gt; 55, 61, 65, 58, 58, 57, 57, 55, 61, 61, 55, 56, 61, 54, 62, 5…
+## $ price   &lt;int&gt; 326, 326, 327, 334, 335, 336, 336, 337, 337, 338, 339, 340, 3…
+## $ cut_1   &lt;dbl&gt; 0.6324555, 0.3162278, -0.3162278, 0.3162278, -0.3162278, 0.00…
+## $ cut_2   &lt;dbl&gt; 0.5345225, -0.2672612, -0.2672612, -0.2672612, -0.2672612, -0…
+## $ cut_3   &lt;dbl&gt; 3.162278e-01, -6.324555e-01, 6.324555e-01, -6.324555e-01, 6.3…
+## $ cut_4   &lt;dbl&gt; 0.1195229, -0.4780914, -0.4780914, -0.4780914, -0.4780914, 0.…
+...
+```
+
+---
+
+# Baking / Juicing
+
+Since the dataset is already calculated after running `prep()` can we use `juice()` to extract it
+
+
+```r
+juice(prepped_rec)
+```
+
+
+```
+## Rows: 53,940
+## Columns: 14
+## $ carat   &lt;dbl&gt; 0.23, 0.21, 0.23, 0.29, 0.31, 0.24, 0.24, 0.26, 0.22, 0.23, 0…
+## $ depth   &lt;dbl&gt; 4.119037, 4.091006, 4.041295, 4.133565, 4.147885, 4.139955, 4…
+## $ table   &lt;dbl&gt; 55, 61, 65, 58, 58, 57, 57, 55, 61, 61, 55, 56, 61, 54, 62, 5…
+## $ price   &lt;int&gt; 326, 326, 327, 334, 335, 336, 336, 337, 337, 338, 339, 340, 3…
+## $ cut_1   &lt;dbl&gt; 0.6324555, 0.3162278, -0.3162278, 0.3162278, -0.3162278, 0.00…
+## $ cut_2   &lt;dbl&gt; 0.5345225, -0.2672612, -0.2672612, -0.2672612, -0.2672612, -0…
+## $ cut_3   &lt;dbl&gt; 3.162278e-01, -6.324555e-01, 6.324555e-01, -6.324555e-01, 6.3…
+## $ cut_4   &lt;dbl&gt; 0.1195229, -0.4780914, -0.4780914, -0.4780914, -0.4780914, 0.…
+...
+```
+
+---
+
+.center[
+# recipes workflow
+]
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+.huge[
+.center[
+
+```r
+recipe -&gt; prepare -&gt; bake/juice
+
+(define) -&gt; (estimate) -&gt; (apply)
+```
+]
+]
+
+---
+
+## Isolates test &amp; training data
+
+When working with data for predictive modeling it is important to make sure any information from the test data leaks into the training data.
+
+This is avoided by using **recipes** by making sure you only prep the recipe with the training dataset.
+
+---
+
+# Can do things formulas can't
+
+---
+
+# selectors
+
+
+
+.pull-left[
+It can be annoying to manually specify variables by name.
+
+Use of selectors can greatly help you!
+]
+
+.pull-right[
+
+&lt;code class ='r hljs remark-code'&gt;rec &lt;- recipe(price ~ ., data = diamonds) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_dummy(all_nominal()) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_zv(all_numeric()) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_center(all_predictors())&lt;/code&gt;
+]
+
+---
+
+# selectors
+
+.pull-left[
+.orange[`all_nominal()`] is used to select all the nominal variables. 
+]
+
+.pull-right[
+
+&lt;code class ='r hljs remark-code'&gt;rec &lt;- recipe(price ~ ., data = diamonds) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_dummy(&lt;span style='color:#EF8633'&gt;all_nominal()&lt;/span&gt;) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_zv(all_numeric()) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_center(all_predictors())&lt;/code&gt;
+]
+
+---
+
+# selectors
+
+.pull-left[
+.orange[`all_numeric()`] is used to select all the numeric variables. 
+
+Even the ones generated by .blue[`step_dummy()`]
+]
+
+.pull-right[
+
+&lt;code class ='r hljs remark-code'&gt;rec &lt;- recipe(price ~ ., data = diamonds) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;&lt;span style='color:#3381F7'&gt;step_dummy&lt;/span&gt;(all_nominal()) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_zv(&lt;span style='color:#EF8633'&gt;all_numeric()&lt;/span&gt;) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_center(all_predictors())&lt;/code&gt;
+]
+
+---
+
+# selectors
+
+.pull-left[
+.orange[`all_predictors()`] is used to select all predictor variables. 
+
+Will not break even if a variable is removed with .blue[`step_zv()`]
+]
+
+.pull-right[
+
+&lt;code class ='r hljs remark-code'&gt;rec &lt;- recipe(price ~ ., data = diamonds) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_dummy(all_nominal()) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;&lt;span style='color:#3381F7'&gt;step_zv&lt;/span&gt;(all_numeric()) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_center(&lt;span style='color:#EF8633'&gt;all_predictors()&lt;/span&gt;)&lt;/code&gt;
+]
+
+---
+
+# Roles
+
+
+
+.pull-left[
+.orange[`update_role()`] can be used to give variables roles.
+
+That then can be selected with .blue[`has_role()`]
+
+Roles can also be set with `role = ` argument inside steps
+]
+
+.pull-right[
+
+&lt;code class ='r hljs remark-code'&gt;rec &lt;- recipe(price ~ ., data = diamonds) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;&lt;span style='color:#EF8633'&gt;update_role&lt;/span&gt;(x, y, z, new_role = "size") %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_log(&lt;span style='color:#3381F7'&gt;has_role&lt;/span&gt;("size")) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_dummy(all_nominal()) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_zv(all_numeric()) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_center(all_predictors())&lt;/code&gt;
+]
+
+---
+
+## PCA extraction
+
+
+
+
+&lt;code class ='r hljs remark-code'&gt;rec &lt;- recipe(price ~ ., data = diamonds) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_dummy(all_nominal()) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_scale(all_predictors()) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;step_center(all_predictors()) %&gt;%&lt;br&gt;&amp;nbsp;&amp;nbsp;&lt;span style='color:#EF8633'&gt;step_pca&lt;/span&gt;(all_predictors(), &lt;span style='color:#3381F7'&gt;threshold = 0.8&lt;/span&gt;)&lt;/code&gt;
+
+You can also write a recipe that extract enough .orange[principal components] to expain .blue[80% of the variance]
+
+Loadings will be kept in the prepped recipe to make sure other datasets are transformed correctly
+
+---
+
+## Imputation
+
+**recipes** does by default NOT deal with missing data.
+
+There are many steps to perform imputation, some include `step_knnimpute()`, `step_meanimpute()` and `step_medianimpute()` for numerics and `step_unknown()` for factors.
+
+---
+
+class: title-slide
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+# Thank you!
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

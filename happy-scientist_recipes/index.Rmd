@@ -1,0 +1,568 @@
+---
+title: "Reproducible preprocessing with recipes"
+subtitle: "Happy Scientist Seminar"
+author: "Emil Hvitfeldt"
+date: "2019-4-27"
+output:
+  xaringan::moon_reader:
+    css: ["default", "theme.css"]
+    lib_dir: libs
+    nature:
+      beforeInit: "macros.js"
+      ratio: "16:9"
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      titleSlideClass: [center, middle]
+---
+
+```{r include=FALSE}
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+opts_chunk$set(
+  echo = TRUE,
+  fig.width = 7, 
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  out.width = "700px")
+```
+
+```{r, echo = FALSE}
+library(sass)
+library(magrittr)
+library(flair)
+library(recipes)
+sass(sass_file("theme.sass"), output = "theme.css")
+```
+
+```{r, echo=FALSE}
+orange <- "#EF8633"
+blue <- "#3381F7"
+
+sass(list(
+  list(orange = orange,
+       blue = blue),
+  "
+  .orange {color: $orange}
+  .blue {color: $blue}
+  "
+))
+```
+
+<br>
+<br>
+
+## What happens to the data between `read_data()` and `fit_model()`?
+
+---
+
+## Prices of 54,000 round cut diamonds
+
+```{r}
+library(ggplot2)
+diamonds
+```
+
+---
+
+## Formula expression in modeling
+
+```{r lm, include = FALSE, eval=FALSE}
+model <- lm(price ~ cut:color + carat + log(depth), 
+            data = diamonds)
+```
+
+```{r, echo=FALSE}
+decorate("lm") %>%
+  flair("price", color = orange) %>%
+  flair("cut:color + carat + log(depth)", color = blue)
+```
+
+- Select .orange[outcome] & .blue[predictors]
+
+---
+
+## Formula expression in modeling
+
+```{r, echo=FALSE}
+decorate("lm") %>%
+  flair("cut:color", color = orange)
+```
+
+- Select outcome & predictors
+- .orange[Operators] to matrix of predictors
+
+---
+
+## Formula expression in modeling
+
+```{r, echo=FALSE}
+decorate("lm") %>%
+  flair("log(depth)", color = orange)
+```
+
+- Select outcome & predictors
+- Operators to matrix of predictors
+- .orange[Inline functions]
+
+---
+
+## Work under the hood - model.matrix
+
+```{r, eval=FALSE}
+model.matrix(price ~ cut:color + carat + log(depth) + table, 
+             data = diamonds)
+```
+
+```{r, echo=FALSE, output.lines=13}
+dplyr::glimpse(as.data.frame(model.matrix(price ~ cut:color + carat + log(depth) + table, 
+             data = diamonds)), 80)
+```
+  
+---
+
+## Downsides
+
+- **Tidious typing with many variables**
+
+---
+
+## Downsides
+
+- Tedious typing with many variables
+- **Functions have to manually be applied to each variable**
+
+```{r, eval=FALSE}
+lm(y ~ log(x01) + log(x02) + log(x03) + log(x04) + log(x05) + log(x06) + log(x07) +
+       log(x08) + log(x09) + log(x10) + log(x11) + log(x12) + log(x13) + log(x14) + 
+       log(x15) + log(x16) + log(x17) + log(x18) + log(x19) + log(x20) + log(x21) + 
+       log(x22) + log(x23) + log(x24) + log(x25) + log(x26) + log(x27) + log(x28) + 
+       log(x29) + log(x30) + log(x31) + log(x32) + log(x33) + log(x34) + log(x35),
+   data = dat)
+```
+
+---
+
+## Downsides
+
+- Tedious typing with many variables
+- Functions have to manually be applied to each variable
+- **Operations are constrained to single columns**
+
+```{r, eval=FALSE}
+# Not possible
+lm(y ~ pca(x01, x02, x03, x04, x05), data = dat)
+```
+
+---
+
+## Downsides
+
+- Tedious typing with many variables
+- Functions have to manually be applied to each variable
+- Operations are constrained to single columns
+- **Everything happens at once**
+
+You can't apply multiple transformations to the same variable.
+
+---
+
+## Downsides
+
+- Tedious typing with many variables
+- Functions have to manually be applied to each variable
+- Operations are constrained to single columns
+- Everything happens at once
+- **Connected to the model, calculations are not saved between models**
+
+One could manually use `model.matrix` and pass the result to the modeling function.
+
+---
+
+.center[
+![:scale 45%](https://raw.githubusercontent.com/rstudio/hex-stickers/master/PNG/recipes.png)
+]
+
+---
+
+# Recipes
+
+New package to deal with this problem
+
+### Benefits:
+
+- **Modular**
+
+---
+
+# Recipes
+
+New package to deal with this problem
+
+### Benefits:
+
+- Modular
+- **pipeable**
+
+---
+
+# Recipes
+
+New package to deal with this problem
+
+### Benefits:
+
+- Modular
+- pipeable
+- **Deferred evaluation**
+
+---
+
+# Recipes
+
+New package to deal with this problem
+
+### Benefits:
+
+- Modular
+- pipeable
+- Deferred evaluation
+- **Isolates test data from training data**
+
+---
+
+# Recipes
+
+New package to deal with this problem
+
+### Benefits:
+
+- Modular
+- pipeable
+- Deferred evaluation
+- Isolates test data from training data
+- **Can do things formulas can't**
+
+
+---
+
+# Modularity and pipeability
+
+```{r, eval=FALSE}
+price ~ cut + color + carat + log(depth) + table
+```
+
+Taking the formula from before we can rewrite it as the following recipe
+
+```{r rec1, eval=FALSE}
+rec <- recipe(price ~ cut + color + carat + depth + table, 
+              data = diamonds) %>%
+  step_log(depth) %>%
+  step_dummy(cut, color)
+```
+
+---
+
+# Modularity and pipeability
+
+```{r, eval=FALSE}
+price ~ cut + color + carat + log(depth) + table
+```
+
+Taking the formula from before we can rewrite it as the following recipe
+
+```{r echo=FALSE}
+decorate("rec1") %>%
+  flair("price ~ cut + color + carat + depth + table", color = orange)
+```
+
+.orange[formula] expression to specify variables
+
+---
+
+# Modularity and pipeability
+
+```{r, eval=FALSE}
+price ~ cut + color + carat + log(depth) + table
+```
+
+Taking the formula from before we can rewrite it as the following recipe
+
+```{r echo=FALSE}
+decorate("rec1") %>%
+  flair("step_log(depth) %>%", color = orange)
+```
+
+then apply .orange[log] transformation on `depth`
+
+---
+
+# Modularity and pipeability
+
+```{r, eval=FALSE}
+price ~ cut + color + carat + log(depth) + table
+```
+
+Taking the formula from before we can rewrite it as the following recipe
+
+```{r echo=FALSE}
+decorate("rec1") %>%
+  flair("step_dummy(cut, color)", color = orange)
+```
+
+lastly we create .orange[dummy variables] from `cut` and `color`
+
+---
+
+## Deferred evaluation
+
+If we look at the recipe we created we don't see a dataset, but instead, we see a specification
+
+```{r}
+rec
+```
+
+---
+
+## Deferred evaluation
+
+**recipes** gives a specification of the intent of what we want to do.
+
+No calculations have been carried out yet.
+
+First we need to `prep()` the recipe. This will calculate the sufficient statistics needed to perform each of the steps. 
+
+```{r}
+prepped_rec <- prep(rec)
+```
+
+---
+
+## Deferred evaluation
+
+```{r}
+prepped_rec
+```
+
+---
+
+# Baking
+
+After we have prepped the recipe we can `bake()` it to apply all the transformations
+
+```{r, eval=FALSE}
+bake(prepped_rec, new_data = diamonds)
+```
+
+```{r, echo=FALSE, output.lines=10}
+dplyr::glimpse(bake(prepped_rec, new_data = diamonds), 80)
+```
+
+---
+
+# Baking / Juicing
+
+Since the dataset is already calculated after running `prep()` can we use `juice()` to extract it
+
+```{r, eval=FALSE}
+juice(prepped_rec)
+```
+
+```{r, echo=FALSE, output.lines=10}
+dplyr::glimpse(juice(prepped_rec), 80)
+```
+
+---
+
+.center[
+# recipes workflow
+]
+
+<br>
+<br>
+<br>
+.huge[
+.center[
+```{r, eval=FALSE}
+recipe -> prepare -> bake/juice
+
+(define) -> (estimate) -> (apply)
+```
+]
+]
+
+---
+
+## Isolates test & training data
+
+When working with data for predictive modeling it is important to make sure any information from the test data leaks into the training data.
+
+This is avoided by using **recipes** by making sure you only prep the recipe with the training dataset.
+
+---
+
+# Can do things formulas can't
+
+---
+
+# selectors
+
+```{r rec2, eval=FALSE, include=FALSE}
+rec <- recipe(price ~ ., data = diamonds) %>%
+  step_dummy(all_nominal()) %>%
+  step_zv(all_numeric()) %>%
+  step_center(all_predictors())
+```
+
+.pull-left[
+It can be annoying to manually specify variables by name.
+
+Use of selectors can greatly help you!
+]
+
+.pull-right[
+```{r, echo=FALSE}
+decorate("rec2")
+```
+]
+
+---
+
+# selectors
+
+.pull-left[
+.orange[`all_nominal()`] is used to select all the nominal variables. 
+]
+
+.pull-right[
+```{r, echo=FALSE}
+decorate("rec2") %>%
+  flair("all_nominal()", color = orange)  
+```
+]
+
+---
+
+# selectors
+
+.pull-left[
+.orange[`all_numeric()`] is used to select all the numeric variables. 
+
+Even the ones generated by .blue[`step_dummy()`]
+]
+
+.pull-right[
+```{r, echo=FALSE}
+decorate("rec2") %>%
+  flair("all_numeric()", color = orange) %>%
+  flair("step_dummy", color = blue)
+```
+]
+
+---
+
+# selectors
+
+.pull-left[
+.orange[`all_predictors()`] is used to select all predictor variables. 
+
+Will not break even if a variable is removed with .blue[`step_zv()`]
+]
+
+.pull-right[
+```{r, echo=FALSE}
+decorate("rec2") %>%
+  flair("all_predictors()", color = orange) %>%
+  flair("step_zv", color = blue)
+```
+]
+
+---
+
+# Roles
+
+```{r rec3, eval=FALSE, include=FALSE}
+rec <- recipe(price ~ ., data = diamonds) %>%
+  update_role(x, y, z, new_role = "size") %>%
+  step_log(has_role("size")) %>%
+  step_dummy(all_nominal()) %>%
+  step_zv(all_numeric()) %>%
+  step_center(all_predictors())
+```
+
+.pull-left[
+.orange[`update_role()`] can be used to give variables roles.
+
+That then can be selected with .blue[`has_role()`]
+
+Roles can also be set with `role = ` argument inside steps
+]
+
+.pull-right[
+```{r, echo=FALSE}
+decorate("rec3") %>%
+  flair("update_role", color = orange) %>%
+  flair("has_role", color = blue)
+```
+]
+
+---
+
+## PCA extraction
+
+```{r rec4, eval=FALSE, include=FALSE}
+rec <- recipe(price ~ ., data = diamonds) %>%
+  step_dummy(all_nominal()) %>%
+  step_scale(all_predictors()) %>%
+  step_center(all_predictors()) %>%
+  step_pca(all_predictors(), threshold = 0.8)
+```
+
+```{r echo=FALSE}
+decorate("rec4") %>%
+  flair("step_pca", color = orange) %>%
+  flair("threshold = 0.8", color = blue)
+```
+
+You can also write a recipe that extract enough .orange[principal components] to expain .blue[80% of the variance]
+
+Loadings will be kept in the prepped recipe to make sure other datasets are transformed correctly
+
+---
+
+## Imputation
+
+**recipes** does by default NOT deal with missing data.
+
+There are many steps to perform imputation, some include `step_knnimpute()`, `step_meanimpute()` and `step_medianimpute()` for numerics and `step_unknown()` for factors.
+
+---
+
+class: title-slide
+
+<br>
+<br>
+<br>
+<br>
+<br>
+# Thank you!
