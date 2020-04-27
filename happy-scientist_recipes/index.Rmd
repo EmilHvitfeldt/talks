@@ -47,7 +47,7 @@ opts_chunk$set(
   out.width = "700px")
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message=FALSE}
 library(sass)
 library(magrittr)
 library(flair)
@@ -143,7 +143,7 @@ dplyr::glimpse(as.data.frame(model.matrix(price ~ cut:color + carat + log(depth)
 
 ## Downsides
 
-- **Tidious typing with many variables**
+- **Tedious typing with many variables**
 
 ---
 
