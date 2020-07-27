@@ -1,0 +1,295 @@
+
+Hello my name is Emil Hvitfeldt and I will be talking about themis: dealing with imbalanced data by using synthetic oversampling.
+
+We will start by a Motivated Fictional Scenario.
+
+Imagine that you work at a healthcare startup where the company's mission is to provide preventive care to lower overall medical costs.
+
+A new cancer screening is being available and you have been tasked to develop a model that classifies customers that would benefit from it.
+
+So you spin up some modeling and you start by loading data, loading tidymodels, you run the costumer modeling template workflow. You get the results and you get some very favorable accuracy.
+
+```{r, eval=FALSE}
+customers_data <- read_csv("data/customers.csv")
+```
+
+```{r, eval=FALSE}
+library(tidymodels)
+
+[...]
+# Use company modeling template
+[...]
+
+model_results %>%
+  collect_metrics()
+
+## # A tibble: 1 x 5
+##   .metric  .estimator  mean     n std_err
+##   <chr>    <chr>      <dbl> <int>   <dbl>
+## 1 accuracy binary     0.938    10 0.00570
+```
+
+But before you report it to your leader you go and look at some of the other diagnostics tto make sure your model is sound.
+
+---
+
+# Confusion Matrix
+
+Oh no, it appears that the model always predicts the minority class.
+
+---
+
+# Class distribution
+
+And even worse, the class distribution is quite skewed. With the vast majority of the cases being classed as "low risk".
+It appeared that the model was not able to distinguish between cases "at risk" and "low risk".
+So we need to be able to find a way to deal with the problem.
+
+---
+
+One of the assumptions we need to make to make about the data is that there is a fundamental different the people "at risk" and the people who aren't at risk.
+
+[Image of two colorful propability distributions with faces and their hands in the air. One is Blue and one is green.]
+
+---
+
+Furthermore we have the added complexity that there are way more people not at risk then where are people at risk.
+There are a lot of modeling techniques that will not be able to calibrate.
+A lot of models will need more or less an even amount of cases in each class.
+So we have to deal with this problem.
+
+[Same image as before, but the blue distribution have been made smaller and the green distribution have been made bigger to reflect the imbalance in the data]
+
+
+---
+
+# How to deal with unbalanced data
+
+  - Use weights
+  - Ensemble Methods
+  - Over-sampling
+  - Under-sampling
+
+---
+
+# Definitions
+
+### Over-sampling
+
+Creating additional oberservations for minority classes
+
+### Under-sampling
+
+Remove observations from majority classes
+
+---
+
+# Disclaimer
+
+All visualizations are done in two dimensions
+
+But methods generalize to higher dimensions because they work in euclidean space
+
+Similarly most examples will only have two classes. But then the methods would work with multiple cases by going through them one by one.
+
+---
+
+So here we have a small selection of data that could be a subset of the data we saw before.
+So here in the lower left, blue points are the customers at risk and the green points are the customers not at risk. And as we can see there is a fairly decent decision boundary between the two. But we still have some points that are in between different ones.
+One of the main outliers is happening right near the middle with this blue point being surounded by all these green points.
+
+One of the first ways of dealing with this is by removing samples from the majority class. That would mean that we would take some green points at random and remove them.
+
+[Scatterplot with around 200 points. Colors are green and blue. Points in the lower left part is primarily blue and the rest are green.]
+
+---
+
+So first we take half of the green points, here illustrated in dark green color.
+
+[Same scatterplot as before, half of the green points have turned a dark green at random]
+
+---
+
+And we remove them. Now we have a more even distribution between the number of blue points and green points. and our model will hopefully be able to perform better.
+It can be scary to think that we are losing power. But rest assured that this is one of the ways to make our models work.
+
+[Same scatterplot as before. The dark green points have been removed leaving only the blue and green points.]
+
+---
+
+# Over-sampling
+
+Another way of dealing with this is a method called over sampling.
+
+We want to create additional points.
+
+But how should they be created?
+
+- Duplicates of existing points, so this is a little bit like what we did before. But instead of removing points we are adding copies with replacement of the low count cases. 
+- Generate points around existing points. We want to do this is some space which will generally be done in euclidean space.
+- Create a generative model of the distributions of the different classes and draw samples from those distributions. Those would be completely synthetic but should have roughly the same distributional properties as the original data.
+
+I will be focusing on generating points around existing points.
+
+---
+
+# SMOTE
+
+We will introduce the SMOTE algorithm. SMOTE stands for synthetic minority over-sampling technique.
+
+SMOTE is a cleaver technique which works by generating between existing points
+
+---
+
+So I'll be showcasing how this methods works by showing how to SMOTE one point which can then be generalized to SMOTEing many points.
+
+[Scatterplot with around 200 points. Colors are green and blue. Points in the lower left part is primarily blue and the rest are green.]
+
+---
+
+So we have the data but we will be focusing on this little area so we will zoom in a little bit. So we can more clearly see what is going on.
+
+[A grey square encasing around 20 points have been placed on the scatterplot denoting a zoom is going to take place]
+
+---
+so to SMOTE a point
+
+
+[a scatter plot with 20 blue points]
+
+---
+
+1. Select a one point
+
+Here i have marked it in dark blue in the upper right corner.
+
+[One of the blue points have been highlighted in a dark blue.]
+
+---
+
+
+2. Find n **nearest neighbors** inside the same class (n = 5)
+
+So in this case I found the 5 nearest neighbors around the point. And to illustrate I added dashed lines.
+
+[5 dashed lines have been drawn between the highlighted point and its 5 nearest neighbors]
+
+---
+
+3. Then we Randomly pick 1 **neighbors**
+
+
+[One of the dashed lines have been highlighted to indicate it has been selected]
+
+---
+
+4. Generate 1 blue[point randomly along the line
+
+and now we have our new point.
+To be able to smote the whole dataset we just repeat this process many times.
+
+[A point have been generated along the highlighed line]
+
+
+---
+
+# SMOTE
+
+So here we see it where the data from before but all the grey points are smoted points that have been created between the existing points.
+
+And if we want to create a completely balanced dataset then we take the number of points in the majority class minus the number of points in the minority class and generate that many points.
+
+Commonly in SMOTE what you do is to make sure that each point is taken more or less evenly. One point around each point or two points around each point. To make sure that all of the points haven't been created around just one point.
+
+[Scatterplot with around 200 points. Colors are green and blue. Points in the lower left part is primarily blue and the rest are green. around 75 dark blue points have been overlaid between blue points.]
+
+---
+
+
+# Borderline SMOTE
+
+One of the variants of the SMOTE is the Borderline SMOTE algorithm.
+
+Points with with only its own class as neighbor are "safe".
+Points with with only other classes as neighbor are "lost".
+If more then half of the neighbors comes from a different class it is labeled "danger".
+
+Only create new points around "danger" points
+
+[Scatterplot with around 200 points. Colors are green and blue. Points in the lower left part is primarily blue and the rest are green. Around 75 dark blue points have been overlaid between blue points near the border between blue and green points]
+
+
+---
+
+# Borderline SMOTE
+
+Variant:
+
+Between all neighbors, not just its own class
+
+[Scatterplot with around 200 points. Colors are green and blue. Points in the lower left part is primarily blue and the rest are green. Around 75 dark blue points have been overlaid between the blue points and green points]
+
+---
+
+# ADASYN
+
+Points are selected proportional to how many neighbors are from a different class
+
+[Scatterplot with around 200 points. Colors are green and blue. Points in the lower left part is primarily blue and the rest are green. Around 75 dark blue points have been overlaid between the blue points and green points]
+
+
+---
+
+# Implementation
+ 
+I need the methods that:
+
+- Can handle more then 2 classes,
+- Are fast and have low memory footprint and,
+- Can generate exactly N points
+
+
+---
+
+# tidymodels/themis
+
+[Screenshot of Github readme for the themis package]
+
+```{r}
+library(recipes)
+library(themis)
+library(modeldata)
+data(credit_data)
+
+sort(table(credit_data$Status, useNA = "always"))
+
+ds_rec <- recipe(Status ~ Age + Income + Assets, data = credit_data) %>%
+  step_meanimpute(all_predictors()) %>%
+  step_smote(Status) %>%
+  prep()
+
+sort(table(juice(ds_rec)$Status, useNA = "always"))
+```
+
+---
+
+[Screenshot of pkgdown reference page for themis package]
+
+---
+
+[Screnshot of themis announcement blogpost on tidymodels.org]
+https://www.tidyverse.org/blog/2020/02/themis-0-1-0/
+
+---
+
+class: center, middle
+
+# Thank you!
+
+### `r icon::fa("github")` [EmilHvitfeldt](https://github.com/EmilHvitfeldt/)
+### `r icon::fa("twitter")` [@Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)
+### `r icon::fa("linkedin")` [emilhvitfeldt](linkedin.com/in/emilhvitfeldt/)
+### `r icon::fa("laptop")` [www.hvitfeldt.me](www.hvitfeldt.me)
+
+Slides created via the R package [xaringan](https://github.com/yihui/xaringan).
+

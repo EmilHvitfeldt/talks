@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>themis: dealing with imbalanced data by using synthetic oversampling</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Emil Hvitfeldt" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/font-awesome-5.3.1/css/fontawesome-all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, title-slide
+
+# themis: dealing with imbalanced data by using synthetic oversampling
+## useR2020
+### Emil Hvitfeldt
+
+---
+
+
+
+
+
+
+<style>.orange {
+  color: #EF8633;
+}
+
+.blue {
+  color: #006766;
+}
+</style>
+
+## Motivated Fictional Scenario
+
+You work at a healthcare startup
+
+The company's mission is to provide preventive care to lower overall medical costs
+
+A cancer screening is available and you have been tasked to develop a model that classifies customers that would benefit from it
+
+---
+
+## Modeling with tidymodels
+
+
+```r
+customers_data &lt;- read_csv("data/customers.csv")
+```
+
+--
+
+
+```r
+library(tidymodels)
+```
+
+---
+
+## Modeling with tidymodels
+
+
+```r
+customers_data &lt;- read_csv("data/customers.csv")
+```
+
+
+```r
+library(tidymodels)
+
+[...]
+# Use company modeling template
+[...]
+```
+
+---
+
+## Modeling with tidymodels
+
+
+```r
+customers_data &lt;- read_csv("data/customers.csv")
+```
+
+
+```r
+library(tidymodels)
+
+[...]
+# Use company modeling template
+[...]
+
+model_results %&gt;%
+  collect_metrics()
+
+## # A tibble: 1 x 5
+##   .metric  .estimator  mean     n std_err
+##   &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+## 1 accuracy binary     0.938    10 0.00570
+```
+
+---
+
+# Confusion Matrix
+
+--
+
+
+
+&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Class distribution
+
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+![:scale 90%](cartoons/non-proportional.png)
+
+---
+
+![:scale 90%](cartoons/proportional.png)
+---
+
+# How to deal with unbalanced data
+
+---
+
+# How to deal with unbalanced data
+
+  - Use weights
+
+---
+
+# How to deal with unbalanced data
+
+  - Use weights
+  - Ensemble Methods
+  
+---
+
+# How to deal with unbalanced data
+
+  - Use weights
+  - Ensemble Methods
+  - Over-sampling
+
+---
+
+# How to deal with unbalanced data
+
+  - Use weights
+  - Ensemble Methods
+  - Over-sampling
+  - Under-sampling
+
+---
+
+# How to deal with unbalanced data
+
+  - Use weights
+  - Ensemble Methods
+  - **Over-sampling**
+  - **Under-sampling**
+
+---
+
+# Definitions
+
+### Over-sampling
+
+Creating additional oberservations for minority classes
+
+### Under-sampling
+
+Remove observations from majority classes
+
+---
+
+# Disclaimer
+
+All visualizations are done in two dimensions
+
+But methods generalize to higher dimensions
+
+Similarly most examples will only have two classes
+
+---
+
+.hidden[
+## Title
+]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Randomly remove samples from majority
+
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Randomly remove samples from majority
+
+
+
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Randomly remove samples from majority
+
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Over-sampling
+
+We want to create additional points
+
+But how should they be created?
+
+---
+
+# Over-sampling
+
+We want to create additional points
+
+But how should they be created?
+
+- Duplicates of existing points
+
+---
+
+# Over-sampling
+
+We want to create additional points
+
+But how should they be created?
+
+- Duplicates of existing points
+- Generate points around existing points
+
+---
+
+# Over-sampling
+
+We want to create additional points
+
+But how should they be created?
+
+- Duplicates of existing points
+- Generate points around existing points
+- Create a generative model and sample points
+
+---
+
+# Over-sampling
+
+We want to create additional points
+
+But how should they be created?
+
+- Duplicates of existing points
+- **Generate points around existing points**
+- Create a generative model and sample points
+
+---
+
+# SMOTE
+
+--
+
+- **S**ynthetic 
+- **M**inority 
+- **O**ver-sampling 
+- **TE**chnique
+
+--
+
+SMOTE is a cleaver technique which works by generating between existing points
+
+---
+
+.pull-left[
+
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+**To SMOTE a point**
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+**To SMOTE a point**
+
+1. Select a **.blue[point]**
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+**To SMOTE a point**
+
+1. Select a point
+1. Find n **nearest neighbors** inside the same class (n = 5)
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-22-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+---
+
+.pull-left[
+**To SMOTE a point**
+
+1. Select a point
+1. Find n nearest neighbors inside the same class (n = 5)
+1. Randomly pick 1 **neighbors**
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-23-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+**To SMOTE a point**
+
+1. Select a point
+1. Find n nearest neighbors inside the same class (n = 5)
+1. Randomly pick 1 neighbors
+1. Generate 1 **.blue[point]** randomly along the line
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-24-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+**To SMOTE a point**
+
+1. Select a point
+1. Find n nearest neighbors inside the same class (n = 5)
+1. Randomly pick 1 neighbors
+1. Generate 1 **.blue[point]** randomly along the line
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-25-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+
+# SMOTE
+
+If we want to create balance in between classes we simply generate majority_count - minority_count points
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
+
+.pull-left[
+
+# Borderline SMOTE
+
+Points with with only its own class as neighbor are "safe".
+Points with with only other classes as neighbor are "lost".
+If more then half of the neighbors comes from a different class it is labeled "danger".
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-27-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+
+# Borderline SMOTE
+
+Only create new points around "danger" points
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-28-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
+
+.pull-left[
+
+
+# Borderline SMOTE
+
+Variant:
+
+Between all neighbors, not just its own class
+
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+# ADASYN
+
+Points are selected proportional to how many neighbors are from a different class
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-30-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Implementation
+ 
+I need the methods that:
+
+- Can handle more then 2 classes,
+- Are fast and have low memory footprint and,
+- Can generate exactly N points
+
+
+---
+
+# tidymodels/themis
+
+![](images/github-page.png)
+---
+
+
+
+```r
+library(recipes)
+library(themis)
+library(modeldata)
+data(credit_data)
+
+sort(table(credit_data$Status, useNA = "always"))
+```
+
+```
+## 
+## &lt;NA&gt;  bad good 
+##    0 1254 3200
+```
+
+```r
+ds_rec &lt;- recipe(Status ~ Age + Income + Assets, data = credit_data) %&gt;%
+  step_meanimpute(all_predictors()) %&gt;%
+  step_smote(Status) %&gt;%
+  prep()
+
+sort(table(juice(ds_rec)$Status, useNA = "always"))
+```
+
+```
+## 
+## &lt;NA&gt;  bad good 
+##    0 3200 3200
+```
+
+---
+
+![](images/references.png)
+
+---
+
+![](images/tidyverse.png)
+https://www.tidyverse.org/blog/2020/02/themis-0-1-0/
+
+---
+
+class: center, middle
+
+# Thank you!
+
+### <i class="fab  fa-github "></i> [EmilHvitfeldt](https://github.com/EmilHvitfeldt/)
+### <i class="fab  fa-twitter "></i> [@Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)
+### <i class="fab  fa-linkedin "></i> [emilhvitfeldt](linkedin.com/in/emilhvitfeldt/)
+### <i class="fas  fa-laptop "></i> [www.hvitfeldt.me](www.hvitfeldt.me)
+
+Slides created via the R package [xaringan](https://github.com/yihui/xaringan).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
