@@ -6,6 +6,11 @@
 
 # 2020
 
+## useR! 2020 - themis
+
+[Material](/user2020-themis)
+[Slides](user-themis.netlify.app)
+
 ## Happy Scientist Seminar - Recipes
 
 [Material](/happy-scientist_recipes)  
