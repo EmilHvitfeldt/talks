@@ -8,8 +8,8 @@
 
 ## useR! 2020 - themis
 
-[Material](/user2020-themis)
-[Slides](user-themis.netlify.app)
+[Material](/user2020-themis)  
+[Slides](https://user-themis.netlify.app)
 
 ## Happy Scientist Seminar - Recipes
 
