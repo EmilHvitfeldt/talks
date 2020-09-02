@@ -1,0 +1,299 @@
+---
+title: "Looking at Stop Words: Why You Shouldn't Blindly Trust Model Defaults"
+subtitle: "SLC RUG September 2020"
+author: "Emil Hvitfeldt"
+output:
+  xaringan::moon_reader:
+    css: ["default", "theme.css"]
+    lib_dir: libs
+    nature:
+      beforeInit: "macros.js"
+      ratio: "16:9"
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      titleSlideClass: [center, middle]
+
+---
+
+background-image: url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-size: 100%
+background-position: 0% 20%
+
+```{r include=FALSE}
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+   lines <- options$output.lines
+   if (is.null(lines)) {
+     return(hook_output(x, options))  # pass to default hook
+   }
+   x <- unlist(strsplit(x, "\n"))
+   more <- "..."
+   if (length(lines)==1) {        # first n lines
+     if (length(x) > lines) {
+       # truncate the output, but add ....
+       x <- c(head(x, lines), more)
+     }
+   } else {
+     x <- c(more, x[lines], more)
+   }
+   # paste these lines together
+   x <- paste(c(x, ""), collapse = "\n")
+   hook_output(x, options)
+ })
+
+opts_chunk$set(
+  echo = TRUE,
+  fig.width = 7, 
+  fig.align = 'center',
+  fig.asp = 0.618, # 1 / phi
+  dpi = 320,
+  out.width = "700px")
+```
+
+```{r, echo = FALSE, message=FALSE}
+library(sass)
+library(magrittr)
+library(flair)
+library(recipes)
+library(tidyverse)
+library(ggtext)
+sass(sass_file("theme.sass"), output = "theme.css")
+```
+
+```{r, echo=FALSE}
+orange <- "#EF8633"
+blue <- "#006766"
+
+sass(list(
+  list(orange = orange,
+       blue = blue),
+  "
+  .orange {color: $orange}
+  .blue {color: $blue}
+  "
+))
+
+data <- palmerpenguins::penguins %>%
+  transmute(var1 = scale(bill_length_mm),
+            var2 = scale(flipper_length_mm),
+            class = factor(species == "Adelie", labels = c("Low Risk", "At Risk"))) %>%
+  drop_na() %>%
+  filter(!(class == "At Risk" & row_number() %% 2 == 0))
+
+data_colors <- rev(c("#B2EAEB", "#D7FF85"))
+data_dark <- rev(c("#006766", "#4B8000"))
+```
+
+
+---
+
+background-image: url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-size: 100%
+background-position: 0% 40%
+
+---
+
+background-image: url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-size: 100%
+background-position: 0% 60%
+
+---
+
+background-image: url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-size: 100%
+background-position: 0% 80%
+
+---
+
+background-image: url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-size: 100%
+background-position: 0% 100%
+
+---
+
+background-image: linear-gradient( rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) ), url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-size: 100%
+background-position: 0% 100%
+
+---
+
+background-image: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-size: 100%
+background-position: 0% 100%
+
+
+
+## Motivated Fictional Scenario
+
+---
+
+background-image: url("fish/paco-joss-4GL53Okjaic-unsplash.jpg")
+background-size: 40%
+background-position: 0% 80%
+
+---
+
+# what is stop words
+
+---
+
+# Give some history
+
+Hans Peter Luhn, one of the pioneers in information retrieval, is credited with coining the phrase and using the concept.
+https://en.wikipedia.org/wiki/Stop_words#cite_note-3
+Hans didn't use the term "stop words" in 1959 but it was used in literature shortly after
+
+---
+
+# give some examples of definitions
+
+"In natural language processing, useless words (data), are referred to as stop words."
+"In computing, stop words are words that are filtered out before or after the natural language data (text) are processed."
+"Stopwords are the words in any language which does not add much meaning to a sentence. They can safely be ignored without sacrificing the meaning of the sentence"
+
+---
+
+# give some examples of definitions cont
+
+this gives the illusion that stopwords are easy to work with and are without problems
+
+---
+
+# This is not the case!
+
+---
+
+# what is stopwords really?
+
+
+Text can be broken down to smaller units. These units will be of varying importance to the signal of the text
+
+(use ggpage to showcase this)
+use fade transitions https://www.garrickadenbuie.com/blog/animate-xaringan-slide-transitions/
+
+start with text. have uniform signal
+
+highlight certain areas to show importance
+
+fode to have different areas be highlighted to showcase that signal/noise is dependant on task
+
+show properbility distribution of words
+
+show that we want to to define a cutoff point
+
+This is not realistic in practice as we are not able to clearly define a "signal" functions
+
+Results will end up like this
+
+show distribution of words, but with more random erratic distribution of words
+
+We need to strike a balance between speed and performance
+
+---
+
+How can we handle this
+
+- pre-made lists
+- homemade list
+- Super secret master method??? (combine the above)
+
+---
+
+# Premade list
+
+I have talked about stop words so far as if they are easy to define and there is one definate list
+
+---
+
+This is WRONG
+
+---
+
+# Why would you choose a premade stopword list?
+
+- Fast
+- easy
+
+---
+
+Show lists of stop words
+
+how as many lists as possible to overwhelm
+
+---
+
+Show how different stopword list affect the following sentence:
+
+setdiff(tokenizers::tokenize_words("To be, or not to be? That is the question")[[1]], stopwords::stopwords())
+
+---
+
+
+
+think about capitalization and choice of tokenizer
+
+talk about different langauges other then english
+
+LOOK AT YOUR STOPWORD LIST
+
+different contexts
+
+Default stop words
+
+funky stop words
+
+domain specific stop words
+
+defaults in modeling
+
+annoying function defaults
+https://twitter.com/ChelseaParlett/status/1257421560060751882
+https://ryxcommar.com/2019/08/30/scikit-learns-defaults-are-wrong/
+https://towardsdatascience.com/3-common-python-flaws-you-need-to-avoid-46c9eebfa0fe
+https://towardsdatascience.com/python-pitfall-mutable-default-arguments-9385e8265422
+https://twitter.com/ryxcommar/status/1167630634958954496?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1167630634958954496%7Ctwgr%5E&ref_url=https%3A%2F%2Fgodatadriven.com%2Fblog%2Fare-sklearn-defaults-wrong%2F
+principle of least astonishment
+
+what are the considerations
+
+should there be defaults at all?
+
+bad cases of defaults
+- always make it clear what the defaults are
+
+tokens are non invariant of the choice of tokenizer
+
+---
+
+# 3 methods
+
+- pre-made lists
+- homemade list
+- combine the above
+
+---
+
+# Resources
+
+Much information in 
+https://www.aclweb.org/anthology/W18-2502.pdf
+
+Read more
+
+https://smltar.com/stopwords.html
+
+---
+
+class: center, middle
+
+# Thank you!
+
+### `r icon::fa("github")` [EmilHvitfeldt](https://github.com/EmilHvitfeldt/)
+### `r icon::fa("twitter")` [@Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)
+### `r icon::fa("linkedin")` [emilhvitfeldt](linkedin.com/in/emilhvitfeldt/)
+### `r icon::fa("laptop")` [www.hvitfeldt.me](www.hvitfeldt.me)
+
+Slides created via the R package [xaringan](https://github.com/yihui/xaringan).
+
