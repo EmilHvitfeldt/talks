@@ -1,9 +1,15 @@
 @import url(https://fonts.googleapis.com/css?family=Montserrat)
 
-$title-color: #101645
+$title-color: #FFF355
 $title-sub-color: #333333
 
-$header-color: #444444
+$header-color: #EAEFA7
+
+$text-color: #95F1F4
+
+$chunk-background: #0d2840
+
+$slide-background: #091C2D
 
 $main-font: Montserrat
 
@@ -50,16 +56,29 @@ del
   font-size: 65%
 
 .remark-inline-code
-  background: #F5F5F5 // lighter
+  color: $text-color
+  background: $chunk-background // lighter
   border-radius: 3px
   padding: 4px
 
 .remark-slide-content
-  color: #474747
+  color: $text-color
   font-weight: 300
   font-size: 180%
   padding: 1em 2em 1em 2em
-  background-color: black
+  background-color: $slide-background
+
+.remark-slide tr:nth-child(even)
+    background: $chunk-background
+
+.remark-slide thead, .remark-slide tfoot, .remark-slide tr:nth-child(even)
+    background: $chunk-background
+
+/* code chunks */
+
+.hljs-github .hljs
+  color: $text-color
+  background: $chunk-background
 
 /* Slide headers */
 
@@ -105,7 +124,7 @@ li::before
 /* Title slide */
 
 .title-slide
-  background-image: url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+  background-image: url("fish/sea.jpg")
   background-size: 100%
   background-position: 0% 0%
 
@@ -119,9 +138,11 @@ li::before
   font-family: $main-font
   text-align: center
   vertical-align: bottom
-  margin-left: 200px
-  margin-right: 200px
   margin-bottom: 10px
+  background: #00000033
+  padding-left: 0px
+  margin-left: 0px
+  margin-right: 0px
 
 .title-slide h2
   color: $title-color
@@ -133,6 +154,10 @@ li::before
   margin-top: 10px
   margin-bottom: 10px
   margin-left: 0
+  background: #00000033
+  padding-left: 0px
+  margin-left: 0px
+  margin-right: 0px
 
 .title-slide h3
   color: $title-sub-color
@@ -142,6 +167,10 @@ li::before
   text-align: center
   margin-bottom: 10px
   margin-left: 0
+  background: #00000033
+  padding-left: 0px
+  margin-left: 0px
+  margin-right: 0px
 
 .title-slide h4
   color: $title-sub-color
@@ -154,3 +183,12 @@ li::before
 
 .hidden
   visibility: hidden
+
+.footnote
+  bottom: 0em
+  font-size: 75%
+  position: fixed
+  top: 90%
+  left: -1%
+  text-align: right
+  width: 100%

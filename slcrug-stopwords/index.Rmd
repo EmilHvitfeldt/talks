@@ -16,9 +16,13 @@ output:
 
 ---
 
-background-image: url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-image: url("fish/sea.jpg")
 background-size: 100%
 background-position: 0% 20%
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
 
 ```{r include=FALSE}
 library(knitr)
@@ -49,7 +53,8 @@ opts_chunk$set(
   fig.align = 'center',
   fig.asp = 0.618, # 1 / phi
   dpi = 320,
-  out.width = "700px")
+  out.width = "700px",
+  dev.args = list(bg = 'transparent'))
 ```
 
 ```{r, echo = FALSE, message=FALSE}
@@ -59,6 +64,7 @@ library(flair)
 library(recipes)
 library(tidyverse)
 library(ggtext)
+library(countdown)
 sass(sass_file("theme.sass"), output = "theme.css")
 ```
 
@@ -75,13 +81,6 @@ sass(list(
   "
 ))
 
-data <- palmerpenguins::penguins %>%
-  transmute(var1 = scale(bill_length_mm),
-            var2 = scale(flipper_length_mm),
-            class = factor(species == "Adelie", labels = c("Low Risk", "At Risk"))) %>%
-  drop_na() %>%
-  filter(!(class == "At Risk" & row_number() %% 2 == 0))
-
 data_colors <- rev(c("#B2EAEB", "#D7FF85"))
 data_dark <- rev(c("#006766", "#4B8000"))
 ```
@@ -89,200 +88,1515 @@ data_dark <- rev(c("#006766", "#4B8000"))
 
 ---
 
-background-image: url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-image: url("fish/sea.jpg")
+background-size: 100%
+background-position: 0% 30%
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: url("fish/sea.jpg")
 background-size: 100%
 background-position: 0% 40%
 
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
 ---
 
-background-image: url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-image: url("fish/sea.jpg")
+background-size: 100%
+background-position: 0% 50%
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: url("fish/sea.jpg")
 background-size: 100%
 background-position: 0% 60%
 
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
 ---
 
-background-image: url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-image: url("fish/sea.jpg")
+background-size: 100%
+background-position: 0% 70%
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: url("fish/sea.jpg")
 background-size: 100%
 background-position: 0% 80%
 
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
 ---
 
-background-image: url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-image: url("fish/sea.jpg")
+background-size: 100%
+background-position: 0% 90%
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: url("fish/sea.jpg")
 background-size: 100%
 background-position: 0% 100%
 
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
 ---
 
-background-image: linear-gradient( rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) ), url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-image: linear-gradient( rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) ), url("fish/sea.jpg")
 background-size: 100%
 background-position: 0% 100%
 
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
 ---
 
-background-image: linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url("fish/pawel-nolbert-xe-ss5Tg2mo-unsplash.jpg")
+background-image: linear-gradient( rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4) ), url("fish/sea.jpg")
 background-size: 100%
 background-position: 0% 100%
 
-
-
-## Motivated Fictional Scenario
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
 
 ---
 
-background-image: url("fish/paco-joss-4GL53Okjaic-unsplash.jpg")
+background-image: linear-gradient( rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6) ), url("fish/sea.jpg")
+background-size: 100%
+background-position: 0% 100%
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: linear-gradient( rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8) ), url("fish/sea.jpg")
+background-size: 100%
+background-position: 0% 100%
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@hellocolor?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Pawel Nolbert</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+---
+
+.center[
+# What are stop words?
+]
+
+---
+
+background-image: url("fish/fish05.png")
+background-size: 60%
+background-position: 35% 90%
+
+.center[
+# What are stop words?
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@davidclode?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">David Clode</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: url("fish/fish12.png")
 background-size: 40%
 background-position: 0% 80%
 
----
-
-# what is stop words
-
----
-
-# Give some history
+.center[
+# History
+]
 
 Hans Peter Luhn, one of the pioneers in information retrieval, is credited with coining the phrase and using the concept.
-https://en.wikipedia.org/wiki/Stop_words#cite_note-3
-Hans didn't use the term "stop words" in 1959 but it was used in literature shortly after
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@slinger?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Paco Joss</a> on <a href="https://unsplash.com/?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
 
 ---
 
-# give some examples of definitions
+# Definitions from the Web
 
-"In natural language processing, useless words (data), are referred to as stop words."
-"In computing, stop words are words that are filtered out before or after the natural language data (text) are processed."
-"Stopwords are the words in any language which does not add much meaning to a sentence. They can safely be ignored without sacrificing the meaning of the sentence"
+--
+
+> "In natural language processing, useless words (data), are referred to as stop words."
+
+<br>
+
+--
+ 
+> "In computing, stop words are words that are filtered out before or after the natural language data (text) are processed."
+
+<br>
+
+--
+
+> "Stopwords are the words in any language which does not add much meaning to a sentence. They can safely be ignored without sacrificing the meaning of the sentence"
+
+---
+ 
+.center[
+<span, style = 'font-size:200px;'>`r emo::ji("thinking")`</span>
+]
+
+--
+
+<br>
+
+## this gives the illusion that stop words are easy to work with and are without problems
 
 ---
 
-# give some examples of definitions cont
-
-this gives the illusion that stopwords are easy to work with and are without problems
-
----
+background-image: url("fish/fish14.png")
+background-size: 50%
+background-position: 100% 20%
 
 # This is not the case!
 
----
-
-# what is stopwords really?
-
-
-Text can be broken down to smaller units. These units will be of varying importance to the signal of the text
-
-(use ggpage to showcase this)
-use fade transitions https://www.garrickadenbuie.com/blog/animate-xaringan-slide-transitions/
-
-start with text. have uniform signal
-
-highlight certain areas to show importance
-
-fode to have different areas be highlighted to showcase that signal/noise is dependant on task
-
-show properbility distribution of words
-
-show that we want to to define a cutoff point
-
-This is not realistic in practice as we are not able to clearly define a "signal" functions
-
-Results will end up like this
-
-show distribution of words, but with more random erratic distribution of words
-
-We need to strike a balance between speed and performance
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@tangzhengtao?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">zhengtao tang</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
 
 ---
 
-How can we handle this
+background-image: url("fish/fish14.png")
+background-size: 50%
+background-position: 100% 20%
+
+# what is stop words really?
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@tangzhengtao?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">zhengtao tang</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+--
+
+.pull-left[
+Low information words that contribute little value to task 
+
+<br>
+
+The information of words lives on a continuum
+]
+
+---
+
+.pull-left[
+## Word information
+
+Each rectangle represents a word in 1 document
+
+We will illustrate the information that word carries with color.
+
+<span, style = 'color:#3E049CFF;'>low information words</span> 
+
+<span, style = 'color:#FCCD25FF;'>high information words</span>
+
+]
+
+.pull-right[
+```{r, echo=FALSE, warning = FALSE, out.width="80%", fig.asp = 1.1}
+library(ggpage)
+tinderbox %>%
+  ggpage_build() %>%
+  ggpage_plot() +
+  theme_void()
+```
+]
+
+---
+
+.pull-left[
+## Word information
+
+Uniform information
+
+If this was true then it would hurt to remove any words
+
+# `r emo::ji("thumbsdown")`
+]
+
+.pull-right[
+```{r, echo=FALSE, warning = FALSE, out.width="80%", fig.asp = 1.1}
+library(ggpage)
+tinderbox %>%
+  ggpage_build() %>%
+  mutate(fill = 1) %>%
+  ggpage_plot(aes(fill = fill)) +
+  theme_void() +
+  guides(fill = "none") +
+  scale_fill_viridis_c(option = "C")
+```
+]
+
+---
+
+.pull-left[
+## Word information
+
+Random information
+
+No way to figure out which words to remove
+
+# `r emo::ji("thumbsdown")`
+]
+
+.pull-right[
+```{r, echo=FALSE, warning = FALSE, out.width="80%", fig.asp = 1.1}
+library(ggpage)
+tinderbox %>%
+  ggpage_build() %>%
+  mutate(fill = runif(n())) %>%
+  ggpage_plot(aes(fill = fill)) +
+  theme_void() +
+  guides(fill = "none") +
+  scale_fill_viridis_c(option = "C")
+```
+]
+
+---
+
+.pull-left[
+## Word information
+
+Random information
+
+No way to figure out which words to remove
+
+# `r emo::ji("thumbsdown")`
+]
+
+.pull-right[
+```{r, echo=FALSE, warning = FALSE, out.width="80%", fig.asp = 1.1}
+library(ggpage)
+tinderbox %>%
+  ggpage_build() %>%
+  mutate(fill = runif(n())) %>%
+  ggpage_plot(aes(fill = fill)) +
+  theme_void() +
+  guides(fill = "none") +
+  scale_fill_viridis_c(option = "C")
+```
+]
+
+---
+
+.pull-left[
+## Word information
+
+High variance information
+(diamonds in the rough)
+
+Few words have a lot of information
+
+most words have no information
+
+# `r emo::ji("thumbsup")`
+]
+
+.pull-right[
+```{r, echo=FALSE, warning = FALSE, out.width="80%", fig.asp = 1.1}
+library(ggpage)
+library(hcandersenr)
+library(tidytext)
+
+tfidf1 <- hcandersen_en %>%
+  filter(book %in% c("The tinder-box", 
+                     "Thumbelina")) %>%
+  unnest_tokens(word, text) %>%
+  count(book, word) %>%
+  bind_tf_idf(word, book, n) %>%
+  filter(book == "The tinder-box")
+
+tinderbox %>%
+  ggpage_build() %>%
+  left_join(tfidf1, by = c("word", "book")) %>%
+  mutate(fill = tf_idf) %>%
+  ggpage_plot(aes(fill = fill)) +
+  theme_void() +
+  guides(fill = "none") +
+  scale_fill_viridis_c(option = "C")
+```
+]
+
+---
+
+.pull-left[
+## Word information
+
+High variance information
+(diamonds in the rough)
+
+Few words have a lot of information
+
+most words have no information
+
+# `r emo::ji("thumbsup")`
+]
+
+.pull-right[
+```{r, echo=FALSE, warning = FALSE, out.width="80%", fig.asp = 1.1}
+library(ggpage)
+library(hcandersenr)
+library(tidytext)
+
+tfidf1 <- hcandersen_en %>%
+  filter(book %in% c("The tinder-box", 
+                     "Thumbelina")) %>%
+  unnest_tokens(word, text) %>%
+  count(book, word) %>%
+  bind_tf_idf(word, book, n) %>%
+  filter(book == "The tinder-box")
+
+tinderbox %>%
+  ggpage_build() %>%
+  left_join(tfidf1, by = c("word", "book")) %>%
+  mutate(fill = sample(tf_idf)) %>%
+  ggpage_plot(aes(fill = fill)) +
+  theme_void() +
+  guides(fill = "none") +
+  scale_fill_viridis_c(option = "C")
+```
+]
+
+---
+
+.pull-left[
+## Word information
+
+Low variance information
+
+Smooth transition between low and high information words
+
+# `r emo::ji("thumbsup")`
+]
+
+.pull-right[
+```{r, echo=FALSE, warning = FALSE, out.width="80%", fig.asp = 1.1}
+library(ggpage)
+library(hcandersenr)
+library(tidytext)
+
+tfidf1 <- hcandersen_en %>%
+  filter(book %in% c("The tinder-box", 
+                     "Thumbelina")) %>%
+  unnest_tokens(word, text) %>%
+  count(book, word) %>%
+  bind_tf_idf(word, book, n) %>%
+  filter(book == "The tinder-box")
+
+tinderbox %>%
+  ggpage_build() %>%
+  left_join(tfidf1, by = c("word", "book")) %>%
+  mutate(fill = slider::slide_dbl(tf, mean, .before = 10, .after = 10)) %>%
+  ggpage_plot(aes(fill = fill)) +
+  theme_void() +
+  guides(fill = "none") +
+  scale_fill_viridis_c(option = "C")
+```
+]
+
+---
+
+.pull-left[
+## Word information
+
+Low variance information
+
+Smooth transition between low and high information words
+
+# `r emo::ji("thumbsup")`
+]
+
+.pull-right[
+```{r, echo=FALSE, warning = FALSE, out.width="80%", fig.asp = 1.1}
+library(ggpage)
+library(hcandersenr)
+library(tidytext)
+
+tfidf1 <- hcandersen_en %>%
+  filter(book %in% c("The tinder-box", 
+                     "Thumbelina")) %>%
+  unnest_tokens(word, text) %>%
+  count(book, word) %>%
+  bind_tf_idf(word, book, n) %>%
+  filter(book == "The tinder-box")
+
+tinderbox %>%
+  ggpage_build() %>%
+  left_join(tfidf1, by = c("word", "book")) %>%
+  mutate(fill = slider::slide_dbl(sample(tf), mean, .before = 10, .after = 10)) %>%
+  ggpage_plot(aes(fill = fill)) +
+  theme_void() +
+  guides(fill = "none") +
+  scale_fill_viridis_c(option = "C")
+```
+]
+
+---
+
+.center[
+# Information distribution
+]
+
+```{r, echo=FALSE}
+set.seed(1)
+tibble(x = seq_len(80)) %>%
+  mutate(y = 5 - log(x),
+         y = y + slider::slide_dbl(runif(n(), 0, 1), mean, .before = 10, .after = 10)) %>%
+  ggplot(aes(x, y, fill = y)) +
+  geom_col() +
+  theme(plot.background = element_rect(fill = NA, color = NA), 
+        panel.background = element_rect(fill = NA, color = NA), 
+        text = element_text(color = "white"), 
+        legend.position = "top",
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        plot.title = element_text(hjust = 0.5),
+        legend.background = element_rect(fill = NA, color = NA)
+        ) +
+  labs(x = "words",
+       y = "true information", 
+       fill = NULL,
+       title = "Estimated information") +
+  scale_fill_viridis_c(option = "C") + 
+  guides(fill = guide_colorbar(reverse = TRUE, barwidth = 30)) 
+```
+
+---
+
+.center[
+# Information distribution
+]
+
+```{r, echo=FALSE}
+set.seed(1)
+tibble(x = seq_len(80)) %>% 
+  mutate(y = 5 - log(x),
+         y = y + slider::slide_dbl(runif(n(), 0, 1), mean, .before = 10, .after = 10)) %>%
+  ggplot(aes(x, y, fill = y)) +
+  geom_col() +
+  theme(plot.background = element_rect(fill = NA, color = NA), 
+        panel.background = element_rect(fill = NA, color = NA), 
+        text = element_text(color = "white"), 
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        legend.position = "top",
+        plot.title = element_text(hjust = 0.5),
+        legend.background = element_rect(fill = NA, color = NA)
+        ) +
+  labs(x = "words",
+       y = "true information", 
+       fill = NULL,
+       title = "Estimated information") +
+  scale_fill_viridis_c(option = "C") + 
+  guides(fill = guide_colorbar(reverse = TRUE, barwidth = 30)) +
+  geom_vline(xintercept = 59.5, color = "white")
+```
+
+---
+
+.center[
+# Information distribution
+]
+
+```{r, echo=FALSE}
+set.seed(1)
+tibble(x = seq_len(80)) %>% 
+  mutate(y = 5 - log(x),
+         y = y + slider::slide_dbl(runif(n(), 0, 1), mean, .before = 10, .after = 10),
+         fill = y + rnorm(n(), sd = 4)) %>%
+  ggplot(aes(x, y, fill = fill)) +
+  geom_col() +
+  theme(plot.background = element_rect(fill = NA, color = NA), 
+        panel.background = element_rect(fill = NA, color = NA), 
+        text = element_text(color = "white"), 
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        legend.position = "top",
+        plot.title = element_text(hjust = 0.5),
+        legend.background = element_rect(fill = NA, color = NA)
+        ) +
+  labs(x = "words",
+       y = "true information", 
+       fill = NULL,
+       title = "Estimated information") +
+  scale_fill_viridis_c(option = "C") + 
+  guides(fill = guide_colorbar(reverse = TRUE, barwidth = 30)) +
+  geom_vline(xintercept = 59.5, color = "white")
+```
+
+---
+
+.center[
+# Information distribution
+]
+
+```{r, echo=FALSE}
+set.seed(1)
+tibble(x = seq_len(80)) %>% 
+  mutate(y = 5 - log(x),
+         y = y + slider::slide_dbl(runif(n(), 0, 1), mean, .before = 10, .after = 10),
+         fill = y + rnorm(n(), sd = 4)) %>%
+  ggplot(aes(x, y, fill = fill)) +
+  geom_col() +
+  theme(plot.background = element_rect(fill = NA, color = NA), 
+        panel.background = element_rect(fill = NA, color = NA), 
+        text = element_text(color = "white"), 
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        legend.position = "top",
+        plot.title = element_text(hjust = 0.5),
+        legend.background = element_rect(fill = NA, color = NA)
+        ) +
+  labs(x = "words",
+       y = "true information", 
+       fill = NULL,
+       title = "Estimated information") +
+  scale_fill_viridis_c(option = "C") + 
+  guides(fill = guide_colorbar(reverse = TRUE, barwidth = 30)) +
+  geom_vline(xintercept = 74.5, color = "white")
+```
+
+---
+
+.center[
+# Information distribution
+]
+
+```{r, echo=FALSE}
+set.seed(1)
+tibble(x = seq_len(80)) %>% 
+  mutate(y = 5 - log(x),
+         y = y + slider::slide_dbl(runif(n(), 0, 1), mean, .before = 10, .after = 10),
+         fill = y + rnorm(n(), sd = 4)) %>%
+  ggplot(aes(x, y, fill = fill)) +
+  geom_col() +
+  theme(plot.background = element_rect(fill = NA, color = NA), 
+        panel.background = element_rect(fill = NA, color = NA), 
+        text = element_text(color = "white"), 
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        legend.position = "top",
+        plot.title = element_text(hjust = 0.5),
+        legend.background = element_rect(fill = NA, color = NA)
+        ) +
+  labs(x = "words",
+       y = "true information", 
+       fill = NULL,
+       title = "Estimated information") +
+  scale_fill_viridis_c(option = "C") + 
+  guides(fill = guide_colorbar(reverse = TRUE, barwidth = 30)) +
+  geom_vline(xintercept = 49.5, color = "white")
+```
+
+---
+
+background-image: url("fish/fish06.png")
+background-size: 60%
+background-position: 100% 60%
+
+# We need to strike a balance between .orange[speed] and .orange[performance]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@davidclode?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">David Clode</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: url("fish/fish01.png")
+background-size: 40%
+background-position: 100% 0%
+
+# How can we handle this
 
 - pre-made lists
 - homemade list
-- Super secret master method??? (combine the above)
+- Super secret master method???
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@antoinepeltier?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Antoine Peltier</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
 
 ---
 
+background-image: url("fish/fish03.png")
+background-size: 40%
+background-position: 10% 40%
+
+.pull-right[
 # Premade list
 
-I have talked about stop words so far as if they are easy to define and there is one definate list
+I have talked about stop words as if there is only a handful lists out there
+
+And each list is well constructed
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@davidclode?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">David Clode</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
 
 ---
 
-This is WRONG
+.center[
+# This is WRONG
+]
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+--
+
+.center[
+# And I'll tell you why
+]
+
 
 ---
 
-# Why would you choose a premade stopword list?
+background-image: url("fish/fish11.png")
+background-size: 35%
+background-position: 100% 0%
 
+.pull-left[
+
+## Why would you choose a premade stop word list?
+
+### Pro
 - Fast
 - easy
 
----
+### Con
+- General
+]
 
-Show lists of stop words
-
-how as many lists as possible to overwhelm
-
----
-
-Show how different stopword list affect the following sentence:
-
-setdiff(tokenizers::tokenize_words("To be, or not to be? That is the question")[[1]], stopwords::stopwords())
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@gaspanik?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Masaaki Komori</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
 
 ---
 
+# English stop word lists
+
+.pull-left[
+- Galago (forumstop)
+- EBSCOhost
+- CoreNLP (Hardcoded)
+- Ranks NL (Google)
+- Lucene, Solr, Elastisearch
+- MySQL (InnoDB)
+- Ovid (Medical information services)
+]
+
+.pull-right[
+- Bow (libbow, rainbow, arrow, crossbow)
+- LingPipe
+- Vowpal Wabbit (doc2lda)
+- Text Analytics 101
+- LexisNexis®
+- Okapi (gsl.cacm)
+- TextFixer
+- DKPro
+]
+
+---
+
+# English stop word lists
+
+.pull-left[
+- Postgres
+- CoreNLP (Acronym)
+- NLTK
+- Spark ML lib
+- MongoDB
+- Quanteda
+- Ranks NL (Default)
+- Snowball (Original)
+]
+
+.pull-right[
+- Xapian
+- 99webTools
+- Reuters Web of Science™
+- Function Words (Cook 1988)
+- Okapi (gsl.sample)
+- Snowball (Expanded)
+- Galago (stopStructure)
+- DataScienceDojo
+]
+
+---
+
+# English stop word lists
+
+.pull-left[
+- CoreNLP (stopwords.txt)
+- OkapiFramework
+- ATIRE (NCBI Medline)
+- scikit-learn
+- Glasgow IR
+- Function Words (Gilner, Morales 2005)
+- Gensim
+]
+
+.pull-right[
+- Okapi (Expanded gsl.cacm)
+- spaCy
+- C99 and TextTiling
+- Galago (inquery)
+- Indri
+- Onix, Lextek
+- GATE (Keyphrase Extraction)
+]
+
+---
+
+## He got candy. He shouldn't have, but he did.
+
+```{r, echo = FALSE}
+library(htmltools)
+tobe <- "He got candy. He shouldn't have, but he did."
+
+highlighter <- function(x, sign) {
+  if (sign) {
+    htmltools::span(x, style = glue::glue('color:grey;'))
+  } else {
+    htmltools::span(x)
+  }
+}
+
+tokens <- tokenizers::tokenize_words(tobe)[[1]]
+
+stopword_div <- function(stopwords) {
+  tibble(token = tokens) %>%
+  mutate(print = paste0('"', token, '"'),
+         stopword = token %in% stopwords) %>%
+  mutate(divs = map2(print, stopword, highlighter)) %>%
+  pull(divs) %>%
+  div(style = 'display: flex; justify-content: space-between;')
+}
+```
+
+### snowball (175)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_snowball$en)
+```
+
+### SMART (571)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_smart$en)
+```
+
+### NLTK (179)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_nltk$en)
+```
+
+---
+
+## He got candy. He shouldn't have, but he did.
+
+### ISO (1298)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_stopwordsiso$en)
+```
+
+### CoreNLP (29)
+
+```{r, echo = FALSE}
+stopword_div(c("a", "an", "the", "of", "at",
+      "on", "upon", "in", "to", "from", "out", "as", "so", "such", "or", "and", "those", "this", "these", "that",
+      "for", ",", "is", "was", "am", "are", "'s", "been", "were"))
+```
+
+### Galago (15)
+
+```{r, echo = FALSE}
+stopword_div(c("isnt",
+"dont",
+"doesnt",
+"havent",
+"wont",
+"wouldnt",
+"cant",
+"say",
+"got",
+"ive",
+"weve",
+"think",
+"lol",
+"doncha",
+"thats"))
+```
 
 
-think about capitalization and choice of tokenizer
+---
 
-talk about different langauges other then english
+background-image: url("fish/fish02.png")
+background-size: 50%
+background-position: 50% 90%
 
-LOOK AT YOUR STOPWORD LIST
+## But wait, what about capitalization?
 
-different contexts
+This is normally done during tokenization
 
-Default stop words
+The way we tokenize the text will matter a lot for certain stop word lists
 
-funky stop words
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@davidclode?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">David Clode</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
 
-domain specific stop words
+---
 
-defaults in modeling
+# No conversion to lowercase
 
-annoying function defaults
-https://twitter.com/ChelseaParlett/status/1257421560060751882
+```{r, echo = FALSE}
+tokens <- tokenizers::tokenize_words(tobe, lowercase = FALSE)[[1]]
+```
+
+### snowball (175)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_snowball$en)
+```
+
+### SMART (571)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_smart$en)
+```
+
+### NLTK (179)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_nltk$en)
+```
+
+---
+
+# Space separated tokenizer
+
+```{r, echo = FALSE}
+tokens <- text2vec::space_tokenizer(tobe, strip_punct = FALSE)[[1]]
+```
+
+### snowball (175)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_snowball$en)
+```
+
+### SMART (571)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_smart$en)
+```
+
+### NLTK (179)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_nltk$en)
+```
+
+---
+
+# Split on non-word characters
+
+```{r, echo = FALSE}
+tokens <- strsplit(tobe, "\\W")[[1]]
+```
+
+### snowball (175)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_snowball$en)
+```
+
+### SMART (571)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_smart$en)
+```
+
+### NLTK (179)
+
+```{r, echo = FALSE}
+stopword_div(stopwords::data_stopwords_nltk$en)
+```
+
+---
+
+background-image: url("fish/fish07.png")
+background-size: 40%
+background-position: 80% 90%
+
+.pull-left[
+## Your tokenizer and stop word list should be .orange[compatible]
+
+stemming and lemmatization also changes the tokens
+
+Know the order in which you should remove stop words and perform stemming
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@kyawthutun?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Kyaw Tun</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: url("fish/fish08.png")
+background-size: 70%
+background-position: 50% 90%
+
+.center[
+# LOOK AT YOUR STOP WORD LIST
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@kyawthutun?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Kyaw Tun</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+# Non-English stop word lists
+
+- Make sure that your list works in the target language
+- Direct translation of English stop word list will not be sufficiant
+- Know the target language or
+- Hire consultant that knows the langauge
+
+---
+
+# funky stop words quiz #1
+
+.pull-left[
+- he's
+- she's
+- himself
+- herself
+]
+
+```{r, echo=FALSE}
+countdown(minutes = 0, seconds = 15)
+```
+
+---
+
+# funky stop words quiz #1
+
+.pull-left[
+- he's
+- .orange[she's]
+- himself
+- herself
+]
+
+.pull-right[
+.orange[she's] doesn't appear in the SMART list
+]
+
+---
+
+# funky stop words quiz #2
+
+.pull-left[
+- owl
+- bee
+- fify
+- system1
+]
+
+```{r, echo=FALSE}
+countdown(minutes = 0, seconds = 15)
+```
+
+---
+
+# funky stop words quiz #2
+
+.pull-left[
+- owl
+- bee
+- .orange[fify]
+- system1
+]
+
+.pull-right[
+.orange[fify] was left undetected for 3 years (2012 to 2015) in scikit-learn
+]
+
+---
+
+# funky stop words quiz #3
+
+.pull-left[
+- substantially
+- successfully
+- sufficiently
+- statistically
+]
+
+```{r, echo=FALSE}
+countdown(minutes = 0, seconds = 15)
+```
+
+---
+
+# funky stop words quiz #3
+
+.pull-left[
+- substantially
+- successfully
+- sufficiently
+- .orange[statistically]
+]
+
+.pull-right[
+.orange[statistically] doesn't appear in the Stopwords ISO list
+]
+
+---
+
+background-image: url("fish/fish04.png")
+background-size: 70%
+background-position: 80% 90%
+
+# How did these words appear in this list?
+
+Generation process
+
+grammar based or frequency based
+
+These lists are meant to be GENERAL
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@davidclode?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">David Clode</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: url("fish/fish08.png")
+background-size: 70%
+background-position: 50% 90%
+
+.center[
+# LOOK AT YOUR STOP WORD LIST
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@kyawthutun?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Kyaw Tun</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+.center[
+# Stop word lists
+
+<br><br>
+
+## General 
+
+### vs
+
+## domain specific
+]
+
+---
+
+<br><br><br>
+
+### Most stop word lists are made to work with "general language"
+
+<br>
+
+### domain specific stop words will work differently
+
+---
+
+# Home-made lists
+
+Use a count based approach to construct a stop word list
+
+use domain knowlegde to add words you know won't be important
+
+Here you have a change to weed out a little of the bias
+
+Make sure to filter by min number of words seen
+
+---
+
+<br><br><br>
+
+.center[
+# Secret method??
+]
+
+---
+
+background-image: url("fish/fish09.png")
+background-size: 40%
+background-position: 0% 90%
+
+.pull-right[
+# Combine the two
+
+Start with a conservative list and add words you find appropriate
+
+best of both worlds
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@kyawthutun?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Kyaw Tun</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+# Default stop words
+
+What are the default stop words in tidytext, textrecipes, quanteda
+
+--
+
+re-exports stopwords::stopwords(). Defaults to snowball
+
+```{r, eval=FALSE}
+quanteda::stopwords()
+```
+
+--
+
+Tibble with onix, SMART and snowball
+
+```{r, eval=FALSE}
+tidytext::stop_words
+```
+
+--
+
+Defaults to snowball
+
+```{r, eval=FALSE}
+textrecipes::step_stopwords()
+```
+
+---
+
+# defaults in modeling
+
+--
+
+Every modeling software/library claims to have "good defaults"
+
+<br>
+
+--
+
+They might be different then from what you want
+
+<br>
+
+--
+
+And they might be different then from what you THINK it did
+
+---
+
+# Function arguments
+
+we have .orange[required arguments] and .orange[additional arguments]
+
+having more required arguments will make your software less prone to surprises from the user
+
+but will also lead to more frustration by the user if they have to fill in arguments similarly all the time
+
+---
+
+# glmnet
+
+`glmnet::glmnet()` has 26 arguments, with 2 of them being required
+
+## Only filling in required
+
+```{r, eval=FALSE}
+glmnet::glmnet(x_mat, y_mat)
+```
+
+---
+
+# glmnet
+
+`glmnet::glmnet()` has 26 arguments, with 2 of them being required
+
+## filling in all arguments
+
+```{r, eval=FALSE}
+glmnet::glmnet(
+  x_mat, y_mat, family = "gaussian", weights = NULL, offset = NULL, 
+  lpha = 1, nlambda = 100, lambda = NULL, standardize = TRUE, 
+  intercept = TRUE, thresh = 1e-07, exclude = NULL, lower.limits = -Inf, 
+  upper.limits = Inf, maxit = 1e+05, standardize.response = FALSE, 
+  type.multinomial = c("ungrouped"), relax = FALSE, trace.it = 0)
+```
+
+---
+
+## In my experience most software leans towards
+
+<br><br><br><br>
+
+.center[
+<span, style = "font-size:45px;">
+`length(required) << length(additional)`
+</span>
+]
+
+---
+
+# recipes defaults
+
+What does `step_pca()` do?
+
+--
+
+PCA yes, but what does it return?
+
+--
+
+```{r}
+step_pca
+```
+
+---
+
+# recipes defaults
+
+Most if not all steps will work out of the box without having to set any arguments
+
+Does this mean that the arguments ar perfect? NO! But they are a good stepping stone and building block
+
+Once you get some that runs then you can adjust the values
+
+---
+
+# parsnip defaults
+
+```{r, error=TRUE}
+library(parsnip)
+
+linear_reg() %>%
+  fit(mpg ~ ., data = mtcars)
+```
+
+---
+
+# parsnip defaults
+
+```{r, error=TRUE}
+library(parsnip)
+
+nearest_neighbor() %>%
+  fit(mpg ~ ., data = mtcars)
+```
+
+--
+
+Some of the modeling functions will error if a mode is not set.
+
+--
+
+This is another balancing act
+
+---
+
+background-image: url("fish/fish10.png")
+background-size: 40%
+background-position: 100% 90%
+
+# Naming conventions
+.pull-left[
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@kyawthutun?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Kyaw Tun</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: url("fish/fish10.png")
+background-size: 40%
+background-position: 100% 90%
+
+# Naming conventions
+.pull-left[
+
+How do we name well established functions and arguments
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@kyawthutun?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Kyaw Tun</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: url("fish/fish10.png")
+background-size: 40%
+background-position: 100% 90%
+
+# Naming conventions
+.pull-left[
+
+How do we name well established functions and arguments
+
+This seems like it should be a simple problem
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@kyawthutun?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Kyaw Tun</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+background-image: url("fish/fish10.png")
+background-size: 40%
+background-position: 100% 90%
+
+# Naming conventions
+.pull-left[
+
+How do we name well established functions and arguments
+
+This seems like it should be a simple problem
+
+but it isn't `r emo::ji("cry")`
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@kyawthutun?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Kyaw Tun</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+---
+
+### Argument names for boosted trees in R
+
+|parsnip        |xgboost              |C5.0         |spark                               |
+|:--------------|:--------------------|:------------|:-----------------------------------|
+|tree_depth     |max_depth (6)        |NA           |max_depth (5)                       |
+|trees          |nrounds (15)         |trials (15)  |max_iter (20)                       |
+|learn_rate     |eta (0.3)            |NA           |step_size (0.1)                     |
+|mtry           |colsample_bytree (1) |NA           |feature_subset_strategy (see below) |
+|min_n          |min_child_weight (1) |minCases (2) |min_instances_per_node (1)          |
+|loss_reduction |gamma (0)            |NA           |min_info_gain (0)                   |
+|sample_size    |subsample (1)        |sample (0)   |subsampling_rate (1)                |
+|stop_iter      |early_stop           |NA           |NA                                  |
+
+
+---
+
+# Miss-match between names
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">By default, logistic regression in scikit-learn runs w L2 regularization on and defaulting to magic number C=1.0. How many millions of ML/stats/data-mining papers have been written by authors who didn&#39;t report (&amp; honestly didn&#39;t think they were) using regularization?</p>&mdash; Zachary Lipton (@zacharylipton) <a href="https://twitter.com/zacharylipton/status/1167298276686589953?ref_src=twsrc%5Etfw">August 30, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+More reading here:
+
 https://ryxcommar.com/2019/08/30/scikit-learns-defaults-are-wrong/
-https://towardsdatascience.com/3-common-python-flaws-you-need-to-avoid-46c9eebfa0fe
-https://towardsdatascience.com/python-pitfall-mutable-default-arguments-9385e8265422
-https://twitter.com/ryxcommar/status/1167630634958954496?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1167630634958954496%7Ctwgr%5E&ref_url=https%3A%2F%2Fgodatadriven.com%2Fblog%2Fare-sklearn-defaults-wrong%2F
-principle of least astonishment
-
-what are the considerations
-
-should there be defaults at all?
-
-bad cases of defaults
-- always make it clear what the defaults are
-
-tokens are non invariant of the choice of tokenizer
 
 ---
 
-# 3 methods
+background-image: url("fish/fish13.png")
+background-size: 40%
+background-position: 100% 90%
 
-- pre-made lists
-- homemade list
-- combine the above
+# principle of least astonishment
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@pawel_czerwinski?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Paweł Czerwiński</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
+
+--
+
+Write software that gives the least amount of surprises
+
+--
+
+Use software assuming the writers don't know about the "principle of least astonishment"
+
+---
+
+background-image: url("fish/fish08.png")
+background-size: 70%
+background-position: 50% 90%
+
+.center[
+# LOOK AT YOUR STOP WORD LIST
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@kyawthutun?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Kyaw Tun</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
 
 ---
 
 # Resources
 
-Much information in 
+Much information in  
+
 https://www.aclweb.org/anthology/W18-2502.pdf
 
 Read more
 
 https://smltar.com/stopwords.html
+
+---
+
+background-image: url("fish/fish08.png")
+background-size: 70%
+background-position: 50% 90%
+
+.center[
+# LOOK AT YOUR STOP WORD LIST
+]
+
+.footnote[
+<span>Photo by <a href="https://unsplash.com/@kyawthutun?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Kyaw Tun</a> on <a href="https://unsplash.com/@emilhvitfeldt/likes?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a></span>
+]
 
 ---
 
