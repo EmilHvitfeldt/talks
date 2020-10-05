@@ -1,0 +1,2745 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>palette2vec</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Emil Hvitfeldt" />
+    <script src="libs/header-attrs-2.3/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/font-awesome-5.3.1/css/fontawesome-all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, title-slide
+
+# palette2vec
+## A new way to explore color palettes
+### Emil Hvitfeldt
+
+---
+
+
+
+
+
+
+<style>.orange {
+  color: #EF8633;
+}
+
+.blue {
+  color: #006766;
+}
+</style>
+
+
+
+# My history with color palettes
+
+--
+
+![](images/colorpalette-repo.png)
+
+---
+
+# My history with color palettes
+
+![](images/paletteer-repo.png)
+
+---
+
+# My history with color palettes
+
+![](images/bot-paletteer.png)
+
+---
+
+.pull-left[
+![:scale 200%](images/bot-paletteer-post1.png)
+]
+
+.pull-right[
+![:scale 200%](images/bot-paletteer-post2.png)
+]
+
+---
+
+.center[
+# Discoverability
+]
+
+--
+
+.pull-left[
+## Pros
+- All palettes in one place
+- Consistent API
+]
+
+--
+
+.pull-right[
+## Cons
+- Hard to discover new palettes
+- Hard to find similar palettes
+- Hard to search for palettes
+]
+
+---
+
+# {paletteer} v1.0.0
+
+![](images/complete1.gif)
+
+---
+
+# {paletteer} v1.0.0
+
+
+```r
+plot(paletteer_d("wesanderson::GrandBudapest2"))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# {paletteer} v1.0.0
+
+
+```r
+plot(paletteer_c("viridis::magma", 10))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+# {paletteer} v1.0.0
+
+
+```r
+plot(paletteer_c("ggthemes::Blue-Green Sequential", 256))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+.center[
+# palette2vec
+]
+
+--
+
+# Proposed plan
+
+--
+
+- Develop a method that projects color into a multi-dimensional space
+
+---
+
+.center[
+# palette2vec
+]
+
+# Proposed plan
+
+- Develop a method that projects color into a multi-dimensional space
+- Use embedded color-palette space to find clusters, similarities and neighbors
+
+---
+
+.center[
+# palette2vec
+]
+
+# Proposed plan
+
+- Develop a method that projects color into a multi-dimensional space
+- Use embedded color-palette space to find clusters, similarities and neighbors
+- Develop method to generate color palette from point in embedded space
+
+---
+
+## color palette similarity
+
+.pull-left[
+![](images/color-pair1.png)
+]
+.pull-right[
+&lt;br&gt;
+### Similar colors used
+### Not same saturation
+]
+
+---
+
+## color palette similarity
+
+.pull-left[
+![](images/color-pair2.png)
+]
+.pull-right[
+&lt;br&gt;
+### Same color
+### Different lengths
+]
+
+---
+
+## color palette similarity
+
+.pull-left[
+![](images/color-pair3.png)
+]
+.pull-right[
+&lt;br&gt;
+### Same feel
+### Muted colors
+]
+
+---
+
+# Main problem
+
+&lt;br&gt;
+
+## color palettes contains a varied number of colors
+
+&lt;br&gt;
+
+## Each color can be represented in no less then 3 dimensions
+
+---
+
+# Main problem
+
+## No trivial way to project 3 by N matrices into a vector of fixed length
+
+---
+
+### RGB color space
+
+.center[
+![:scale 50%](images/rgb.png)
+]
+
+---
+
+### HSL color space
+
+.center[
+![:scale 60%](images/hsl.png)
+]
+
+---
+
+### CIELAB color space
+
+.center[
+![:scale 50%](images/cielab.gif)
+]
+
+---
+
+## We will be using hand-crafted custom features
+
+- Number of colors
+- Linearity
+- Split linearity
+- Contains at least one color
+- Are all one color
+- Summary statistics of inter-color distances
+- Summary statistics of saturation
+- Summary statistics of lightness
+
+---
+
+
+
+# Linearity
+
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#oyrlffrpko .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#oyrlffrpko .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#oyrlffrpko .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#oyrlffrpko .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#oyrlffrpko .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#oyrlffrpko .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#oyrlffrpko .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#oyrlffrpko .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#oyrlffrpko .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#oyrlffrpko .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#oyrlffrpko .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#oyrlffrpko .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#oyrlffrpko .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#oyrlffrpko .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#oyrlffrpko .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#oyrlffrpko .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#oyrlffrpko .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#oyrlffrpko .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#oyrlffrpko .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#oyrlffrpko .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#oyrlffrpko .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#oyrlffrpko .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#oyrlffrpko .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#oyrlffrpko .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#oyrlffrpko .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#oyrlffrpko .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#oyrlffrpko .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#oyrlffrpko .gt_left {
+  text-align: left;
+}
+
+#oyrlffrpko .gt_center {
+  text-align: center;
+}
+
+#oyrlffrpko .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#oyrlffrpko .gt_font_normal {
+  font-weight: normal;
+}
+
+#oyrlffrpko .gt_font_bold {
+  font-weight: bold;
+}
+
+#oyrlffrpko .gt_font_italic {
+  font-style: italic;
+}
+
+#oyrlffrpko .gt_super {
+  font-size: 65%;
+}
+
+#oyrlffrpko .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="oyrlffrpko" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">value</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">colors</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_right">0.758</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#E64B35" x="1" y="1" width="40" height="30"></rect>
+    <rect id="color_2" fill="#4DBBD5" x="41" y="1" width="40" height="30"></rect>
+    <rect id="color_3" fill="#00A087" x="81" y="1" width="40" height="30"></rect>
+    <rect id="color_4" fill="#3C5488" x="121" y="1" width="40" height="30"></rect>
+    <rect id="color_5" fill="#F39B7F" x="161" y="1" width="40" height="30"></rect>
+    <rect id="color_6" fill="#8491B4" x="201" y="1" width="40" height="30"></rect>
+    <rect id="color_7" fill="#91D1C2" x="241" y="1" width="40" height="30"></rect>
+    <rect id="color_8" fill="#DC0000" x="281" y="1" width="40" height="30"></rect>
+    <rect id="color_9" fill="#7E6148" x="321" y="1" width="40" height="30"></rect>
+    <rect id="color_10" fill="#B09C85" x="361" y="1" width="40" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">0.938</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#E8F5E9" x="1" y="1" width="40" height="30"></rect>
+    <rect id="color_2" fill="#C8E6C9" x="41" y="1" width="40" height="30"></rect>
+    <rect id="color_3" fill="#A5D6A7" x="81" y="1" width="40" height="30"></rect>
+    <rect id="color_4" fill="#81C784" x="121" y="1" width="40" height="30"></rect>
+    <rect id="color_5" fill="#66BB6A" x="161" y="1" width="40" height="30"></rect>
+    <rect id="color_6" fill="#4CAF50" x="201" y="1" width="40" height="30"></rect>
+    <rect id="color_7" fill="#43A047" x="241" y="1" width="40" height="30"></rect>
+    <rect id="color_8" fill="#388E3C" x="281" y="1" width="40" height="30"></rect>
+    <rect id="color_9" fill="#2E7D32" x="321" y="1" width="40" height="30"></rect>
+    <rect id="color_10" fill="#1B5E20" x="361" y="1" width="40" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">0.987</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#009392" x="1" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_2" fill="#39b185" x="58.1428571428571" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_3" fill="#9ccb86" x="115.285714285714" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_4" fill="#e9e29c" x="172.428571428571" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_5" fill="#eeb479" x="229.571428571429" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_6" fill="#e88471" x="286.714285714286" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_7" fill="#cf597e" x="343.857142857143" y="1" width="57.1428571428571" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">0.924</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#543005" x="1" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_2" fill="#8C510A" x="37.3636363636364" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_3" fill="#BF812D" x="73.7272727272727" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_4" fill="#DFC27D" x="110.090909090909" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_5" fill="#F6E8C3" x="146.454545454545" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_6" fill="#F5F5F5" x="182.818181818182" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_7" fill="#C7EAE5" x="219.181818181818" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_8" fill="#80CDC1" x="255.545454545455" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_9" fill="#35978F" x="291.909090909091" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_10" fill="#01665E" x="328.272727272727" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_11" fill="#003C30" x="364.636363636364" y="1" width="36.3636363636364" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+  </tbody>
+  
+  
+</table></div>
+
+---
+
+# Linearity split
+
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#gpyomkelyo .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#gpyomkelyo .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#gpyomkelyo .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#gpyomkelyo .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#gpyomkelyo .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gpyomkelyo .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#gpyomkelyo .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#gpyomkelyo .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#gpyomkelyo .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#gpyomkelyo .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#gpyomkelyo .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#gpyomkelyo .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#gpyomkelyo .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#gpyomkelyo .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#gpyomkelyo .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#gpyomkelyo .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#gpyomkelyo .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#gpyomkelyo .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gpyomkelyo .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#gpyomkelyo .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gpyomkelyo .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#gpyomkelyo .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#gpyomkelyo .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gpyomkelyo .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#gpyomkelyo .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#gpyomkelyo .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#gpyomkelyo .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#gpyomkelyo .gt_left {
+  text-align: left;
+}
+
+#gpyomkelyo .gt_center {
+  text-align: center;
+}
+
+#gpyomkelyo .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#gpyomkelyo .gt_font_normal {
+  font-weight: normal;
+}
+
+#gpyomkelyo .gt_font_bold {
+  font-weight: bold;
+}
+
+#gpyomkelyo .gt_font_italic {
+  font-style: italic;
+}
+
+#gpyomkelyo .gt_super {
+  font-size: 65%;
+}
+
+#gpyomkelyo .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="gpyomkelyo" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">value</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">colors</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_right">0.818</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#E64B35" x="1" y="1" width="40" height="30"></rect>
+    <rect id="color_2" fill="#4DBBD5" x="41" y="1" width="40" height="30"></rect>
+    <rect id="color_3" fill="#00A087" x="81" y="1" width="40" height="30"></rect>
+    <rect id="color_4" fill="#3C5488" x="121" y="1" width="40" height="30"></rect>
+    <rect id="color_5" fill="#F39B7F" x="161" y="1" width="40" height="30"></rect>
+    <rect id="color_6" fill="#8491B4" x="201" y="1" width="40" height="30"></rect>
+    <rect id="color_7" fill="#91D1C2" x="241" y="1" width="40" height="30"></rect>
+    <rect id="color_8" fill="#DC0000" x="281" y="1" width="40" height="30"></rect>
+    <rect id="color_9" fill="#7E6148" x="321" y="1" width="40" height="30"></rect>
+    <rect id="color_10" fill="#B09C85" x="361" y="1" width="40" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">1.000</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#E8F5E9" x="1" y="1" width="40" height="30"></rect>
+    <rect id="color_2" fill="#C8E6C9" x="41" y="1" width="40" height="30"></rect>
+    <rect id="color_3" fill="#A5D6A7" x="81" y="1" width="40" height="30"></rect>
+    <rect id="color_4" fill="#81C784" x="121" y="1" width="40" height="30"></rect>
+    <rect id="color_5" fill="#66BB6A" x="161" y="1" width="40" height="30"></rect>
+    <rect id="color_6" fill="#4CAF50" x="201" y="1" width="40" height="30"></rect>
+    <rect id="color_7" fill="#43A047" x="241" y="1" width="40" height="30"></rect>
+    <rect id="color_8" fill="#388E3C" x="281" y="1" width="40" height="30"></rect>
+    <rect id="color_9" fill="#2E7D32" x="321" y="1" width="40" height="30"></rect>
+    <rect id="color_10" fill="#1B5E20" x="361" y="1" width="40" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">0.999</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#009392" x="1" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_2" fill="#39b185" x="58.1428571428571" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_3" fill="#9ccb86" x="115.285714285714" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_4" fill="#e9e29c" x="172.428571428571" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_5" fill="#eeb479" x="229.571428571429" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_6" fill="#e88471" x="286.714285714286" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_7" fill="#cf597e" x="343.857142857143" y="1" width="57.1428571428571" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">0.952</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#543005" x="1" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_2" fill="#8C510A" x="37.3636363636364" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_3" fill="#BF812D" x="73.7272727272727" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_4" fill="#DFC27D" x="110.090909090909" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_5" fill="#F6E8C3" x="146.454545454545" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_6" fill="#F5F5F5" x="182.818181818182" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_7" fill="#C7EAE5" x="219.181818181818" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_8" fill="#80CDC1" x="255.545454545455" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_9" fill="#35978F" x="291.909090909091" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_10" fill="#01665E" x="328.272727272727" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_11" fill="#003C30" x="364.636363636364" y="1" width="36.3636363636364" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+  </tbody>
+  
+  
+</table></div>
+
+---
+
+## At least one colors is green (lower is better)
+
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#tajoccswcy .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tajoccswcy .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tajoccswcy .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tajoccswcy .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tajoccswcy .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tajoccswcy .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tajoccswcy .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tajoccswcy .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tajoccswcy .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tajoccswcy .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tajoccswcy .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tajoccswcy .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tajoccswcy .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tajoccswcy .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tajoccswcy .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tajoccswcy .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tajoccswcy .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#tajoccswcy .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tajoccswcy .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#tajoccswcy .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tajoccswcy .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tajoccswcy .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tajoccswcy .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tajoccswcy .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tajoccswcy .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#tajoccswcy .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tajoccswcy .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#tajoccswcy .gt_left {
+  text-align: left;
+}
+
+#tajoccswcy .gt_center {
+  text-align: center;
+}
+
+#tajoccswcy .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tajoccswcy .gt_font_normal {
+  font-weight: normal;
+}
+
+#tajoccswcy .gt_font_bold {
+  font-weight: bold;
+}
+
+#tajoccswcy .gt_font_italic {
+  font-style: italic;
+}
+
+#tajoccswcy .gt_super {
+  font-size: 65%;
+}
+
+#tajoccswcy .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="tajoccswcy" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">value</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">colors</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_right">28.237</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#E64B35" x="1" y="1" width="40" height="30"></rect>
+    <rect id="color_2" fill="#4DBBD5" x="41" y="1" width="40" height="30"></rect>
+    <rect id="color_3" fill="#00A087" x="81" y="1" width="40" height="30"></rect>
+    <rect id="color_4" fill="#3C5488" x="121" y="1" width="40" height="30"></rect>
+    <rect id="color_5" fill="#F39B7F" x="161" y="1" width="40" height="30"></rect>
+    <rect id="color_6" fill="#8491B4" x="201" y="1" width="40" height="30"></rect>
+    <rect id="color_7" fill="#91D1C2" x="241" y="1" width="40" height="30"></rect>
+    <rect id="color_8" fill="#DC0000" x="281" y="1" width="40" height="30"></rect>
+    <rect id="color_9" fill="#7E6148" x="321" y="1" width="40" height="30"></rect>
+    <rect id="color_10" fill="#B09C85" x="361" y="1" width="40" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">18.770</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#E8F5E9" x="1" y="1" width="40" height="30"></rect>
+    <rect id="color_2" fill="#C8E6C9" x="41" y="1" width="40" height="30"></rect>
+    <rect id="color_3" fill="#A5D6A7" x="81" y="1" width="40" height="30"></rect>
+    <rect id="color_4" fill="#81C784" x="121" y="1" width="40" height="30"></rect>
+    <rect id="color_5" fill="#66BB6A" x="161" y="1" width="40" height="30"></rect>
+    <rect id="color_6" fill="#4CAF50" x="201" y="1" width="40" height="30"></rect>
+    <rect id="color_7" fill="#43A047" x="241" y="1" width="40" height="30"></rect>
+    <rect id="color_8" fill="#388E3C" x="281" y="1" width="40" height="30"></rect>
+    <rect id="color_9" fill="#2E7D32" x="321" y="1" width="40" height="30"></rect>
+    <rect id="color_10" fill="#1B5E20" x="361" y="1" width="40" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">18.643</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#009392" x="1" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_2" fill="#39b185" x="58.1428571428571" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_3" fill="#9ccb86" x="115.285714285714" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_4" fill="#e9e29c" x="172.428571428571" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_5" fill="#eeb479" x="229.571428571429" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_6" fill="#e88471" x="286.714285714286" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_7" fill="#cf597e" x="343.857142857143" y="1" width="57.1428571428571" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">29.633</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#543005" x="1" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_2" fill="#8C510A" x="37.3636363636364" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_3" fill="#BF812D" x="73.7272727272727" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_4" fill="#DFC27D" x="110.090909090909" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_5" fill="#F6E8C3" x="146.454545454545" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_6" fill="#F5F5F5" x="182.818181818182" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_7" fill="#C7EAE5" x="219.181818181818" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_8" fill="#80CDC1" x="255.545454545455" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_9" fill="#35978F" x="291.909090909091" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_10" fill="#01665E" x="328.272727272727" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_11" fill="#003C30" x="364.636363636364" y="1" width="36.3636363636364" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+  </tbody>
+  
+  
+</table></div>
+
+---
+
+# All colors are green (lower is better)
+
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#yvjsfpnxce .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#yvjsfpnxce .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#yvjsfpnxce .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#yvjsfpnxce .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#yvjsfpnxce .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yvjsfpnxce .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#yvjsfpnxce .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#yvjsfpnxce .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#yvjsfpnxce .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#yvjsfpnxce .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#yvjsfpnxce .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#yvjsfpnxce .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#yvjsfpnxce .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#yvjsfpnxce .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#yvjsfpnxce .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#yvjsfpnxce .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#yvjsfpnxce .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#yvjsfpnxce .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yvjsfpnxce .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#yvjsfpnxce .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yvjsfpnxce .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#yvjsfpnxce .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#yvjsfpnxce .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yvjsfpnxce .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#yvjsfpnxce .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#yvjsfpnxce .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#yvjsfpnxce .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#yvjsfpnxce .gt_left {
+  text-align: left;
+}
+
+#yvjsfpnxce .gt_center {
+  text-align: center;
+}
+
+#yvjsfpnxce .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#yvjsfpnxce .gt_font_normal {
+  font-weight: normal;
+}
+
+#yvjsfpnxce .gt_font_bold {
+  font-weight: bold;
+}
+
+#yvjsfpnxce .gt_font_italic {
+  font-style: italic;
+}
+
+#yvjsfpnxce .gt_super {
+  font-size: 65%;
+}
+
+#yvjsfpnxce .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="yvjsfpnxce" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">value</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">colors</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_right">55.157</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#E64B35" x="1" y="1" width="40" height="30"></rect>
+    <rect id="color_2" fill="#4DBBD5" x="41" y="1" width="40" height="30"></rect>
+    <rect id="color_3" fill="#00A087" x="81" y="1" width="40" height="30"></rect>
+    <rect id="color_4" fill="#3C5488" x="121" y="1" width="40" height="30"></rect>
+    <rect id="color_5" fill="#F39B7F" x="161" y="1" width="40" height="30"></rect>
+    <rect id="color_6" fill="#8491B4" x="201" y="1" width="40" height="30"></rect>
+    <rect id="color_7" fill="#91D1C2" x="241" y="1" width="40" height="30"></rect>
+    <rect id="color_8" fill="#DC0000" x="281" y="1" width="40" height="30"></rect>
+    <rect id="color_9" fill="#7E6148" x="321" y="1" width="40" height="30"></rect>
+    <rect id="color_10" fill="#B09C85" x="361" y="1" width="40" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">27.328</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#E8F5E9" x="1" y="1" width="40" height="30"></rect>
+    <rect id="color_2" fill="#C8E6C9" x="41" y="1" width="40" height="30"></rect>
+    <rect id="color_3" fill="#A5D6A7" x="81" y="1" width="40" height="30"></rect>
+    <rect id="color_4" fill="#81C784" x="121" y="1" width="40" height="30"></rect>
+    <rect id="color_5" fill="#66BB6A" x="161" y="1" width="40" height="30"></rect>
+    <rect id="color_6" fill="#4CAF50" x="201" y="1" width="40" height="30"></rect>
+    <rect id="color_7" fill="#43A047" x="241" y="1" width="40" height="30"></rect>
+    <rect id="color_8" fill="#388E3C" x="281" y="1" width="40" height="30"></rect>
+    <rect id="color_9" fill="#2E7D32" x="321" y="1" width="40" height="30"></rect>
+    <rect id="color_10" fill="#1B5E20" x="361" y="1" width="40" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">44.279</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#009392" x="1" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_2" fill="#39b185" x="58.1428571428571" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_3" fill="#9ccb86" x="115.285714285714" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_4" fill="#e9e29c" x="172.428571428571" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_5" fill="#eeb479" x="229.571428571429" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_6" fill="#e88471" x="286.714285714286" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_7" fill="#cf597e" x="343.857142857143" y="1" width="57.1428571428571" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">45.226</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#543005" x="1" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_2" fill="#8C510A" x="37.3636363636364" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_3" fill="#BF812D" x="73.7272727272727" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_4" fill="#DFC27D" x="110.090909090909" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_5" fill="#F6E8C3" x="146.454545454545" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_6" fill="#F5F5F5" x="182.818181818182" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_7" fill="#C7EAE5" x="219.181818181818" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_8" fill="#80CDC1" x="255.545454545455" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_9" fill="#35978F" x="291.909090909091" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_10" fill="#01665E" x="328.272727272727" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_11" fill="#003C30" x="364.636363636364" y="1" width="36.3636363636364" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+  </tbody>
+  
+  
+</table></div>
+
+---
+
+# All colors are red (lower is better)
+
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#tgrdpcuywy .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tgrdpcuywy .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tgrdpcuywy .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tgrdpcuywy .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tgrdpcuywy .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tgrdpcuywy .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tgrdpcuywy .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tgrdpcuywy .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tgrdpcuywy .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tgrdpcuywy .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tgrdpcuywy .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tgrdpcuywy .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tgrdpcuywy .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tgrdpcuywy .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tgrdpcuywy .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tgrdpcuywy .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tgrdpcuywy .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#tgrdpcuywy .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tgrdpcuywy .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#tgrdpcuywy .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tgrdpcuywy .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tgrdpcuywy .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tgrdpcuywy .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tgrdpcuywy .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tgrdpcuywy .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#tgrdpcuywy .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tgrdpcuywy .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#tgrdpcuywy .gt_left {
+  text-align: left;
+}
+
+#tgrdpcuywy .gt_center {
+  text-align: center;
+}
+
+#tgrdpcuywy .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tgrdpcuywy .gt_font_normal {
+  font-weight: normal;
+}
+
+#tgrdpcuywy .gt_font_bold {
+  font-weight: bold;
+}
+
+#tgrdpcuywy .gt_font_italic {
+  font-style: italic;
+}
+
+#tgrdpcuywy .gt_super {
+  font-size: 65%;
+}
+
+#tgrdpcuywy .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="tgrdpcuywy" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">value</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">colors</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_right">37.372</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#E64B35" x="1" y="1" width="40" height="30"></rect>
+    <rect id="color_2" fill="#4DBBD5" x="41" y="1" width="40" height="30"></rect>
+    <rect id="color_3" fill="#00A087" x="81" y="1" width="40" height="30"></rect>
+    <rect id="color_4" fill="#3C5488" x="121" y="1" width="40" height="30"></rect>
+    <rect id="color_5" fill="#F39B7F" x="161" y="1" width="40" height="30"></rect>
+    <rect id="color_6" fill="#8491B4" x="201" y="1" width="40" height="30"></rect>
+    <rect id="color_7" fill="#91D1C2" x="241" y="1" width="40" height="30"></rect>
+    <rect id="color_8" fill="#DC0000" x="281" y="1" width="40" height="30"></rect>
+    <rect id="color_9" fill="#7E6148" x="321" y="1" width="40" height="30"></rect>
+    <rect id="color_10" fill="#B09C85" x="361" y="1" width="40" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">64.742</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#E8F5E9" x="1" y="1" width="40" height="30"></rect>
+    <rect id="color_2" fill="#C8E6C9" x="41" y="1" width="40" height="30"></rect>
+    <rect id="color_3" fill="#A5D6A7" x="81" y="1" width="40" height="30"></rect>
+    <rect id="color_4" fill="#81C784" x="121" y="1" width="40" height="30"></rect>
+    <rect id="color_5" fill="#66BB6A" x="161" y="1" width="40" height="30"></rect>
+    <rect id="color_6" fill="#4CAF50" x="201" y="1" width="40" height="30"></rect>
+    <rect id="color_7" fill="#43A047" x="241" y="1" width="40" height="30"></rect>
+    <rect id="color_8" fill="#388E3C" x="281" y="1" width="40" height="30"></rect>
+    <rect id="color_9" fill="#2E7D32" x="321" y="1" width="40" height="30"></rect>
+    <rect id="color_10" fill="#1B5E20" x="361" y="1" width="40" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">44.900</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#009392" x="1" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_2" fill="#39b185" x="58.1428571428571" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_3" fill="#9ccb86" x="115.285714285714" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_4" fill="#e9e29c" x="172.428571428571" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_5" fill="#eeb479" x="229.571428571429" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_6" fill="#e88471" x="286.714285714286" y="1" width="57.1428571428571" height="30"></rect>
+    <rect id="color_7" fill="#cf597e" x="343.857142857143" y="1" width="57.1428571428571" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_right">46.120</td>
+      <td class="gt_row gt_left"><svg width="403px" height="32px" viewBox="0 0 403 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="1" y="1" width="400" height="30" rx="4"></rect>
+  </defs>
+  <g id="main" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="color_1" fill="#543005" x="1" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_2" fill="#8C510A" x="37.3636363636364" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_3" fill="#BF812D" x="73.7272727272727" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_4" fill="#DFC27D" x="110.090909090909" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_5" fill="#F6E8C3" x="146.454545454545" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_6" fill="#F5F5F5" x="182.818181818182" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_7" fill="#C7EAE5" x="219.181818181818" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_8" fill="#80CDC1" x="255.545454545455" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_9" fill="#35978F" x="291.909090909091" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_10" fill="#01665E" x="328.272727272727" y="1" width="36.3636363636364" height="30"></rect>
+    <rect id="color_11" fill="#003C30" x="364.636363636364" y="1" width="36.3636363636364" height="30"></rect>
+    <g id="outer_rect">
+      <rect stroke="#979797" stroke-width="1" x="1.5" y="1.5" width="399" height="29" rx="4"></rect>
+      <rect stroke="#FFFFFF" stroke-width="2" x="0" y="0" width="402" height="32" rx="4"></rect>
+    </g>
+  </g>
+</svg></td>
+    </tr>
+  </tbody>
+  
+  
+</table></div>
+
+---
+
+### palette2vec
+
+
+```r
+library(palette2vec)
+base_palettes &lt;- list(terrain = terrain.colors(10),
+                      heat = heat.colors(16),
+                      topo = topo.colors(8))
+palette2vec(base_palettes)
+```
+
+```
+## # A tibble: 3 x 29
+##   name  n_cols linear linear_split min_dist max_dist mean_dist min_saturation
+##   &lt;chr&gt;  &lt;int&gt;  &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;          &lt;dbl&gt;
+## 1 terr…     10  0.998        1.00     5.09      47.7      27.0              0
+## 2 heat      16  0.997        0.997    0.620     64.3      30.3            100
+## 3 topo       8  0.973        0.992    3.25     105.       53.9            100
+## # … with 21 more variables: max_saturation &lt;dbl&gt;, mean_saturation &lt;dbl&gt;,
+## #   min_lightness &lt;dbl&gt;, max_lightness &lt;dbl&gt;, mean_lightness &lt;dbl&gt;,
+## #   contains_min_red &lt;dbl&gt;, contains_min_orange &lt;dbl&gt;,
+## #   contains_min_yellow &lt;dbl&gt;, contains_min_green &lt;dbl&gt;,
+## #   contains_min_turqouise &lt;dbl&gt;, contains_min_blue &lt;dbl&gt;,
+## #   contains_min_purple &lt;dbl&gt;, contains_min_pink &lt;dbl&gt;, contains_all_red &lt;dbl&gt;,
+## #   contains_all_orange &lt;dbl&gt;, contains_all_yellow &lt;dbl&gt;,
+## #   contains_all_green &lt;dbl&gt;, contains_all_turqouise &lt;dbl&gt;,
+## #   contains_all_blue &lt;dbl&gt;, contains_all_purple &lt;dbl&gt;, contains_all_pink &lt;dbl&gt;
+```
+
+---
+
+
+```r
+palette2vec(paletteer_palettes())
+```
+
+```
+## # A tibble: 1,711 x 29
+##    name  n_cols linear linear_split min_dist max_dist mean_dist min_saturation
+##    &lt;chr&gt;  &lt;int&gt;  &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;          &lt;dbl&gt;
+##  1 awto…      8  0.963        0.975     9.52     67.4      40.5           16.8
+##  2 awto…      8  0.688        0.749    25.9      89.8      47.6            0  
+##  3 awto…     16  0.840        0.921    10.3      87.2      42.2            0  
+##  4 awto…      4  0.998        1        10.5      62.4      32.3            0  
+##  5 awto…      9  0.814        0.962    20.6      72.8      43.5            0  
+##  6 awto…      6  0.674        1        27.4      73.3      47.8           54.1
+##  7 base…     10  0.857        0.889    15.6      77.0      41.1           20.9
+##  8 base…     10  0.820        0.827    13.4      83.9      45.3           28.0
+##  9 base…     10  0.791        0.736    11.8      79.4      43.9           35.3
+## 10 base…     10  0.823        0.975    15.9      88.8      46.4           41.5
+## # … with 1,701 more rows, and 21 more variables: max_saturation &lt;dbl&gt;,
+## #   mean_saturation &lt;dbl&gt;, min_lightness &lt;dbl&gt;, max_lightness &lt;dbl&gt;,
+## #   mean_lightness &lt;dbl&gt;, contains_min_red &lt;dbl&gt;, contains_min_orange &lt;dbl&gt;,
+## #   contains_min_yellow &lt;dbl&gt;, contains_min_green &lt;dbl&gt;,
+## #   contains_min_turqouise &lt;dbl&gt;, contains_min_blue &lt;dbl&gt;,
+## #   contains_min_purple &lt;dbl&gt;, contains_min_pink &lt;dbl&gt;, contains_all_red &lt;dbl&gt;,
+## #   contains_all_orange &lt;dbl&gt;, contains_all_yellow &lt;dbl&gt;,
+## #   contains_all_green &lt;dbl&gt;, contains_all_turqouise &lt;dbl&gt;,
+## #   contains_all_blue &lt;dbl&gt;, contains_all_purple &lt;dbl&gt;, contains_all_pink &lt;dbl&gt;
+```
+
+---
+
+### Using these features can we apply UMAP to see if we were able to capture the right things
+
+`umap_embedding()` will take a list of palettes and
+
+- calculate palette2vec
+- normalize features
+- project to 2d using UMAP
+- opens shiny app for exploration
+
+
+```r
+umap_embedding(paletteer_palettes())
+```
+
+---
+
+![](images/umap.gif)
+
+---
+
+![](images/nn1.png)
+
+---
+
+![](images/nn2.png)
+
+---
+
+![](images/nn3.png)
+
+---
+
+![](images/nn4.png)
+
+---
+
+![](images/nn5.png)
+
+---
+
+![](images/nn6.png)
+
+---
+
+class: center, middle
+
+# Thank you!
+
+### <i class="fab  fa-github "></i> [EmilHvitfeldt](https://github.com/EmilHvitfeldt/)
+### <i class="fab  fa-twitter "></i> [@Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)
+### <i class="fab  fa-linkedin "></i> [emilhvitfeldt](linkedin.com/in/emilhvitfeldt/)
+### <i class="fas  fa-laptop "></i> [www.hvitfeldt.me](www.hvitfeldt.me)
+
+Slides created via the R package [xaringan](https://github.com/yihui/xaringan).
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
