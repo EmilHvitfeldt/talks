@@ -1,6 +1,6 @@
 ---
 title: "Looking at Stop Words: Why You Shouldn't Blindly Trust Model Defaults"
-subtitle: "SLC RUG September 2020"
+subtitle: "SLC RUG December 2020"
 author: "Emil Hvitfeldt"
 output:
   xaringan::moon_reader:

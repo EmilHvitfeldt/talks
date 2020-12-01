@@ -4,8 +4,10 @@
     <title>Looking at Stop Words: Why You Shouldn’t Blindly Trust Model Defaults</title>
     <meta charset="utf-8" />
     <meta name="author" content="Emil Hvitfeldt" />
-    <script src="libs/header-attrs-2.3/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.5.3/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+    <script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
     <link href="libs/countdown-0.3.5/countdown.css" rel="stylesheet" />
     <script src="libs/countdown-0.3.5/countdown.js"></script>
     <link href="libs/font-awesome-5.3.1/css/fontawesome-all.min.css" rel="stylesheet" />
@@ -16,7 +18,7 @@
 class: center, middle, title-slide
 
 # Looking at Stop Words: Why You Shouldn’t Blindly Trust Model Defaults
-## SLC RUG September 2020
+## SLC RUG December 2020
 ### Emil Hvitfeldt
 
 ---
@@ -771,6 +773,10 @@ The way we tokenize the text will matter a lot for certain stop word lists
 # Space separated tokenizer
 
 
+```
+## Warning in (function (case_insensitive = FALSE, overlap = FALSE, ...) : Unknown
+## option to `stri_opts_fixed`.
+```
 
 ### snowball (175)
 
@@ -923,7 +929,7 @@ background-position: 50% 90%
 - herself
 ]
 
-<div class="countdown" id="timer_5f582df5" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_5fc5e0da" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">15</span></code>
 </div>
 
@@ -953,7 +959,7 @@ background-position: 50% 90%
 - system1
 ]
 
-<div class="countdown" id="timer_5f583054" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_5fc5dfd1" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">15</span></code>
 </div>
 
@@ -983,7 +989,7 @@ background-position: 50% 90%
 - statistically
 ]
 
-<div class="countdown" id="timer_5f583060" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_5fc5e174" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">15</span></code>
 </div>
 
@@ -1235,7 +1241,7 @@ step_pca
 ##         threshold = threshold, options = options, res = res, 
 ##         prefix = prefix, skip = skip, id = id))
 ## }
-## &lt;bytecode: 0x7fc216435ce0&gt;
+## &lt;bytecode: 0x7fcb82996790&gt;
 ## &lt;environment: namespace:recipes&gt;
 ```
 
@@ -1268,18 +1274,16 @@ linear_reg() %&gt;%
 ```
 ## parsnip model object
 ## 
-## Fit time:  2ms 
+## Fit time:  5ms 
 ## 
 ## Call:
 ## stats::lm(formula = mpg ~ ., data = data)
 ## 
 ## Coefficients:
-## (Intercept)          cyl         disp           hp  
-##    12.30337     -0.11144      0.01334     -0.02148  
-##        drat           wt         qsec           vs  
-##     0.78711     -3.71530      0.82104      0.31776  
-##          am         gear         carb  
-##     2.52023      0.65541     -0.19942
+## (Intercept)          cyl         disp           hp         drat           wt  
+##    12.30337     -0.11144      0.01334     -0.02148      0.78711     -3.71530  
+##        qsec           vs           am         gear         carb  
+##     0.82104      0.31776      2.52023      0.65541     -0.19942
 ```
 
 ---
