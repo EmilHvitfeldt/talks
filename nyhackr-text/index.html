@@ -1,0 +1,2426 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Text Preprocessing in R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Emil Hvitfeldt" />
+    <meta name="date" content="2021-06-15" />
+    <script src="libs/header-attrs-2.8.6/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/countdown-0.3.5/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown-0.3.5/countdown.js"></script>
+    <link href="libs/font-awesome-5.3.1/css/fontawesome-all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="theme.css" type="text/css" />
+    <link rel="stylesheet" href="widths.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+background-image: url(images/title.png)
+background-position: center
+background-size: cover
+
+&lt;h1 id="text-preprocessing-in-r" style="
+    position: absolute;
+    left: 5%;
+    top: 15%;
+    color: #c5d8d5;
+    font-size: 60px;
+    -webkit-text-stroke: 2px black;
+"&gt;Text Preprocessing in R&lt;/h1&gt;
+
+&lt;h1 id="new-york-r" style="
+    position: absolute;
+    right: 5%;
+    top: 39%;
+    color: #f6f4c6;
+    font-size: 60px;
+    -webkit-text-stroke: 2px black;
+"&gt;New York R&lt;/h1&gt;
+
+&lt;h1 id="text-preprocessing-in-r" style="
+    position: absolute;
+    left: 5%;
+    top: 61%;
+    color: #fbf1d4;
+    font-size: 60px;
+    -webkit-text-stroke: 2px black;
+"&gt;Emil Hvitfeldt&lt;/h1&gt;
+
+---
+
+class: bg-right, bg1
+
+
+
+
+
+
+
+&lt;div style = "position:fixed; visibility: hidden"&gt;
+`$$\require{color}\definecolor{orange}{rgb}{1, 0.603921568627451, 0.301960784313725}$$`
+`$$\require{color}\definecolor{blue}{rgb}{0.301960784313725, 0.580392156862745, 1}$$`
+`$$\require{color}\definecolor{pink}{rgb}{0.976470588235294, 0.301960784313725, 1}$$`
+&lt;/div&gt;
+
+&lt;script type="text/x-mathjax-config"&gt;
+MathJax.Hub.Config({
+  TeX: {
+    Macros: {
+      orange: ["{\\color{orange}{#1}}", 1],
+      blue: ["{\\color{blue}{#1}}", 1],
+      pink: ["{\\color{pink}{#1}}", 1]
+    },
+    loader: {load: ['[tex]/color']},
+    tex: {packages: {'[+]': ['color']}}
+  }
+});
+&lt;/script&gt;
+
+&lt;style&gt;
+.orange {color: #FF9A4D;}
+.blue {color: #4D94FF;}
+.pink {color: #F94DFF;}
+&lt;/style&gt;
+
+
+      
+# About Me
+
+.pull-left.w80[
+- Data Analyst at Teladoc Health
+- Adjunct Professor at American University teaching statistical machine learning using {tidymodels}
+- R package developer, almost a dozen packages CRAN (textrecipes, themis, paletteer, prismatic, textdata)
+- Co-author of "Supervised Machine Learning for Text Analysis in R" with Julia Silge
+- Located in sunny California
+- Has 3 cats; Presto, Oreo, and Wiggles
+]
+
+---
+
+background-image: url(images/cats.png)
+background-position: center
+background-size: contain
+
+---
+
+class: bg-corners, bg1, middle
+
+.pull-right.w80[
+.pull-left.w90[
+&lt;p style="font-size: 40pt;"&gt;
+Most of data science is counting, and sometimes dividing
+&lt;/p&gt;
+
+&lt;cite&gt;Hadley Wickham&lt;/cite&gt;
+]
+]
+
+---
+
+class: bg-corners, bg1, middle
+
+.pull-right.w80[
+.pull-left.w90[
+&lt;p style="font-size: 40pt;"&gt;
+Most of &lt;s&gt;data science&lt;/s&gt; &lt;b&gt;text preprocessing&lt;/b&gt; is counting, and sometimes dividing
+&lt;/p&gt;
+
+&lt;cite&gt;&lt;s&gt;Hadley Wickham&lt;/s&gt; Emil Hvitfeldt&lt;/cite&gt;
+]
+]
+
+---
+
+class: bg-full, bg1, middle, center
+
+&lt;div style="font-size: 80pt;"&gt;
+What are we counting?
+&lt;/div&gt;
+
+&lt;style type="text/css"&gt;
+.animal {
+  font-size: 31pt;
+}
+
+.hl1 {
+  text-decoration: underline;
+  text-decoration-color: #FF9A4D;
+}
+
+.hl2 {
+  text-decoration: underline;
+  text-decoration-color: #F94DFF;
+}
+&lt;/style&gt;
+
+---
+
+class: bg-corners, bg1
+
+.animal[
+Beavers are most well known for their distinctive home-building that can be seen in rivers and streams. The beavers dam is built from twigs, sticks, leaves and mud and are surprisingly strong. Here the beavers can catch their food and swim in the water.
+Beavers are nocturnal animals existing in the forests of Europe and North America (the Canadian beaver is the most common beaver). Beavers use their large, flat shaped tails, to help with dam building and it also allows the beavers to swim at speeds of up to 30 knots per hour. The beaver's significance is acknowledged in Canada by the fact that there is a Canadian Beaver on one of their coins.
+]
+
+---
+
+class: bg-corners, bg1
+
+.animal[
+.hl1[Beavers are most well known for their distinctive home-building that can be seen in rivers and streams.] .hl2[The beavers dam is built from twigs, sticks, leaves and mud and are surprisingly strong.] .hl1[Here the beavers can catch their food and swim in the water.]
+.hl2[Beavers are nocturnal animals existing in the forests of Europe and North America (the Canadian beaver is the most common beaver).] .hl1[Beavers use their large, flat shaped tails, to help with dam building and it also allows the beavers to swim at speeds of up to 30 knots per hour.] .hl2[The beaver's significance is acknowledged in Canada by the fact that there is a Canadian Beaver on one of their coins.]
+]
+
+---
+
+class: bg-corners, bg1
+
+
+
+
+.animal[
+.hl1[B].hl2[e].hl1[a].hl2[v].hl1[e].hl2[r].hl1[s] .hl1[a].hl2[r].hl1[e] .hl1[m].hl2[o].hl1[s].hl2[t] .hl2[w].hl1[e].hl2[l].hl1[l] .hl1[k].hl2[n].hl1[o].hl2[w].hl1[n] .hl1[f].hl2[o].hl1[r] .hl1[t].hl2[h].hl1[e].hl2[i].hl1[r] .hl1[d].hl2[i].hl1[s].hl2[t].hl1[i].hl2[n].hl1[c].hl2[t].hl1[i].hl2[v].hl1[e] .hl1[h].hl2[o].hl1[m].hl2[e].hl1[-].hl2[b].hl1[u].hl2[i].hl1[l].hl2[d].hl1[i].hl2[n].hl1[g] .hl1[t].hl2[h].hl1[a].hl2[t] .hl2[c].hl1[a].hl2[n] .hl2[b].hl1[e] .hl1[s].hl2[e].hl1[e].hl2[n] .hl2[i].hl1[n] .hl1[r].hl2[i].hl1[v].hl2[e].hl1[r].hl2[s] .hl2[a].hl1[n].hl2[d] .hl2[s].hl1[t].hl2[r].hl1[e].hl2[a].hl1[m].hl2[s].hl1[.] .hl1[T].hl2[h].hl1[e] .hl1[b].hl2[e].hl1[a].hl2[v].hl1[e].hl2[r].hl1[s] .hl1[d].hl2[a].hl1[m] .hl1[i].hl2[s] .hl2[b].hl1[u].hl2[i].hl1[l].hl2[t] .hl2[f].hl1[r].hl2[o].hl1[m] .hl1[t].hl2[w].hl1[i].hl2[g].hl1[s].hl2[,] .hl2[s].hl1[t].hl2[i].hl1[c].hl2[k].hl1[s].hl2[,] .hl2[l].hl1[e].hl2[a].hl1[v].hl2[e].hl1[s] .hl1[a].hl2[n].hl1[d] .hl1[m].hl2[u].hl1[d] .hl1[a].hl2[n].hl1[d] .hl1[a].hl2[r].hl1[e] .hl1[s].hl2[u].hl1[r].hl2[p].hl1[r].hl2[i].hl1[s].hl2[i].hl1[n].hl2[g].hl1[l].hl2[y] .hl2[s].hl1[t].hl2[r].hl1[o].hl2[n].hl1[g].hl2[.] .hl2[H].hl1[e].hl2[r].hl1[e] .hl1[t].hl2[h].hl1[e] .hl1[b].hl2[e].hl1[a].hl2[v].hl1[e].hl2[r].hl1[s] .hl1[c].hl2[a].hl1[n] .hl1[c].hl2[a].hl1[t].hl2[c].hl1[h] .hl1[t].hl2[h].hl1[e].hl2[i].hl1[r] .hl1[f].hl2[o].hl1[o].hl2[d] .hl2[a].hl1[n].hl2[d] .hl2[s].hl1[w].hl2[i].hl1[m] .hl1[i].hl2[n] .hl2[t].hl1[h].hl2[e] .hl2[w].hl1[a].hl2[t].hl1[e].hl2[r].hl1[.] .hl1[B].hl2[e].hl1[a].hl2[v].hl1[e].hl2[r].hl1[s] .hl1[a].hl2[r].hl1[e] .hl1[n].hl2[o].hl1[c].hl2[t].hl1[u].hl2[r].hl1[n].hl2[a].hl1[l] .hl1[a].hl2[n].hl1[i].hl2[m].hl1[a].hl2[l].hl1[s] .hl1[e].hl2[x].hl1[i].hl2[s].hl1[t].hl2[i].hl1[n].hl2[g] .hl2[i].hl1[n] .hl1[t].hl2[h].hl1[e] .hl1[f].hl2[o].hl1[r].hl2[e].hl1[s].hl2[t].hl1[s] .hl1[o].hl2[f] .hl2[E].hl1[u].hl2[r].hl1[o].hl2[p].hl1[e] .hl1[a].hl2[n].hl1[d] .hl1[N].hl2[o].hl1[r].hl2[t].hl1[h] .hl1[A].hl2[m].hl1[e].hl2[r].hl1[i].hl2[c].hl1[a] .hl1[(].hl2[t].hl1[h].hl2[e] .hl2[C].hl1[a].hl2[n].hl1[a].hl2[d].hl1[i].hl2[a].hl1[n] .hl1[b].hl2[e].hl1[a].hl2[v].hl1[e].hl2[r] .hl2[i].hl1[s] .hl1[t].hl2[h].hl1[e] .hl1[m].hl2[o].hl1[s].hl2[t] .hl2[c].hl1[o].hl2[m].hl1[m].hl2[o].hl1[n] .hl1[b].hl2[e].hl1[a].hl2[v].hl1[e].hl2[r].hl1[)].hl2[.] .hl2[B].hl1[e].hl2[a].hl1[v].hl2[e].hl1[r].hl2[s] .hl2[u].hl1[s].hl2[e] .hl2[t].hl1[h].hl2[e].hl1[i].hl2[r] .hl2[l].hl1[a].hl2[r].hl1[g].hl2[e].hl1[,] .hl1[f].hl2[l].hl1[a].hl2[t] .hl2[s].hl1[h].hl2[a].hl1[p].hl2[e].hl1[d] .hl1[t].hl2[a].hl1[i].hl2[l].hl1[s].hl2[,] .hl2[t].hl1[o] .hl1[h].hl2[e].hl1[l].hl2[p] .hl2[w].hl1[i].hl2[t].hl1[h] .hl1[d].hl2[a].hl1[m] .hl1[b].hl2[u].hl1[i].hl2[l].hl1[d].hl2[i].hl1[n].hl2[g] .hl2[a].hl1[n].hl2[d] .hl2[i].hl1[t] .hl1[a].hl2[l].hl1[s].hl2[o] .hl2[a].hl1[l].hl2[l].hl1[o].hl2[w].hl1[s] .hl1[t].hl2[h].hl1[e] .hl1[b].hl2[e].hl1[a].hl2[v].hl1[e].hl2[r].hl1[s] .hl1[t].hl2[o] .hl2[s].hl1[w].hl2[i].hl1[m] .hl1[a].hl2[t] .hl2[s].hl1[p].hl2[e].hl1[e].hl2[d].hl1[s] .hl1[o].hl2[f] .hl2[u].hl1[p] .hl1[t].hl2[o] .hl2[3].hl1[0] .hl1[k].hl2[n].hl1[o].hl2[t].hl1[s] .hl1[p].hl2[e].hl1[r] .hl1[h].hl2[o].hl1[u].hl2[r].hl1[.] .hl1[T].hl2[h].hl1[e] .hl1[b].hl2[e].hl1[a].hl2[v].hl1[e].hl2[r].hl1['].hl2[s] .hl2[s].hl1[i].hl2[g].hl1[n].hl2[i].hl1[f].hl2[i].hl1[c].hl2[a].hl1[n].hl2[c].hl1[e] .hl1[i].hl2[s] .hl2[a].hl1[c].hl2[k].hl1[n].hl2[o].hl1[w].hl2[l].hl1[e].hl2[d].hl1[g].hl2[e].hl1[d] .hl1[i].hl2[n] .hl2[C].hl1[a].hl2[n].hl1[a].hl2[d].hl1[a] .hl1[b].hl2[y] .hl2[t].hl1[h].hl2[e] .hl2[f].hl1[a].hl2[c].hl1[t] .hl1[t].hl2[h].hl1[a].hl2[t] .hl2[t].hl1[h].hl2[e].hl1[r].hl2[e] .hl2[i].hl1[s] .hl1[a] .hl1[C].hl2[a].hl1[n].hl2[a].hl1[d].hl2[i].hl1[a].hl2[n] .hl2[B].hl1[e].hl2[a].hl1[v].hl2[e].hl1[r] .hl1[o].hl2[n] .hl2[o].hl1[n].hl2[e] .hl2[o].hl1[f] .hl1[t].hl2[h].hl1[e].hl2[i].hl1[r] .hl1[c].hl2[o].hl1[i].hl2[n].hl1[s].hl2[.]
+]
+
+---
+
+class: bg-corners, bg1
+
+.animal[
+.hl1[Beavers] .hl2[are] .hl1[most] .hl2[well] .hl1[known] .hl2[for] .hl1[their] .hl2[distinctive] .hl1[home-building] .hl2[that] .hl1[can] .hl2[be] .hl1[seen] .hl2[in] .hl1[rivers] .hl2[and] .hl1[streams.] .hl2[The] .hl1[beavers] .hl2[dam] .hl1[is] .hl2[built] .hl1[from] .hl2[twigs,] .hl1[sticks,] .hl2[leaves] .hl1[and] .hl2[mud] .hl1[and] .hl2[are] .hl1[surprisingly] .hl2[strong.] .hl1[Here] .hl2[the] .hl1[beavers] .hl2[can] .hl1[catch] .hl2[their] .hl1[food] .hl2[and] .hl1[swim] .hl2[in] .hl1[the] .hl2[water.] .hl1[Beavers] .hl2[are] .hl1[nocturnal] .hl2[animals] .hl1[existing] .hl2[in] .hl1[the] .hl2[forests] .hl1[of] .hl2[Europe] .hl1[and] .hl2[North] .hl1[America] .hl2[(the] .hl1[Canadian] .hl2[beaver] .hl1[is] .hl2[the] .hl1[most] .hl2[common] .hl1[beaver).] .hl2[Beavers] .hl1[use] .hl2[their] .hl1[large,] .hl2[flat] .hl1[shaped] .hl2[tails,] .hl1[to] .hl2[help] .hl1[with] .hl2[dam] .hl1[building] .hl2[and] .hl1[it] .hl2[also] .hl1[allows] .hl2[the] .hl1[beavers] .hl2[to] .hl1[swim] .hl2[at] .hl1[speeds] .hl2[of] .hl1[up] .hl2[to] .hl1[30] .hl2[knots] .hl1[per] .hl2[hour.] .hl1[The] .hl2[beaver's] .hl1[significance] .hl2[is] .hl1[acknowledged] .hl2[in] .hl1[Canada] .hl2[by] .hl1[the] .hl2[fact] .hl1[that] .hl2[there] .hl1[is] .hl2[a] .hl1[Canadian] .hl2[Beaver] .hl1[on] .hl2[one] .hl1[of] .hl2[their] .hl1[coins.] 
+]
+
+---
+
+class: bg-corners, bg1, center, middle
+
+# Disclaimer
+
+--
+
+I'll show examples in English  
+
+--
+
+English is not the only language out there #BenderRule
+
+--
+
+The difficulty of different tasks vary from language to language  
+
+--
+
+langauge != text
+
+---
+
+class: bg-left, bg1
+
+.pull-right.w80[
+# Goal
+
+Turn .blue[text] into .pink[numbers]
+
+&lt;br&gt;
+
+turning the .blue[text] into .pink[something machine readable]
+
+there *will* be a loss along the way
+
+the same way there is a loss from speech to text
+]
+
+---
+
+class: bg-left, bg1, middle
+
+.pull-right.w80[
+.pull-left.w90[
+&lt;p style="font-size: 40pt;"&gt;
+What I'll be talking about will be langauge/implementatation agnostic
+&lt;/p&gt;
+
+]
+]
+
+---
+
+class: bg-corners, bg1
+
+.center[
+# Existing packages
+]
+
+.pull-left[
+.center[
+## tidytext
+]
+
+great for EDA and topic modeling
+]
+
+.pull-right[
+.center[
+## quanteda
+]
+
+Whole ecosystem, end to end
+]
+
+---
+
+class: bg-corners, bg1
+
+.center[
+## {textrecipes}
+]
+
+.pull-left[
+- strictly text preprocessing / feature engineering
+
+
+- part of recipes/tidymodels
+
+
+- doesn't create any custom object
+
+
+- It doesn't restrict us to only use text as features
+]
+
+.pull-right[
+.center[
+![:scale 70%](images/textrecipes.png)
+]
+]
+
+---
+
+.center[
+![:scale 90%](images/standard.png)
+]
+
+---
+
+class: bg-right, bg1, middle
+
+## tidytext doesn't work
+
+&lt;br&gt;
+
+## quanteda is its own ecosystem
+
+&lt;br&gt;
+
+##learn transformation and apply to new data
+
+---
+
+class: bg-corners, bg1
+
+.pull-right.w80[
+# Scope
+
+We are limiting this to tabular data
+
+I would rather get a good foundation then work with the cutting edge 
+]
+
+
+---
+
+# Full recipe
+
+
+```r
+library(animals)
+library(recipes)
+library(textrecipes)
+
+rec_spec &lt;- recipe(diet ~ ., data = animals) %&gt;%
+* step_novel(lifestyle) %&gt;%
+* step_unknown(lifestyle) %&gt;%
+* step_other(lifestyle, threshold = 0.01) %&gt;%
+* step_dummy(lifestyle) %&gt;%
+* step_log(mean_weight) %&gt;%
+* step_impute_mean(mean_weight) %&gt;%
+  step_text_normalization(text) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text) %&gt;%
+  step_tokenfilter(text, max_tokens = 500, min_times = 5) %&gt;%
+  step_tfidf(text)
+```
+
+---
+
+# Full recipe
+
+
+```r
+library(animals)
+library(recipes)
+library(textrecipes)
+
+rec_spec &lt;- recipe(diet ~ ., data = animals) %&gt;%
+  step_novel(lifestyle) %&gt;%
+  step_unknown(lifestyle) %&gt;%
+  step_other(lifestyle, threshold = 0.01) %&gt;%
+  step_dummy(lifestyle) %&gt;% 
+  step_log(mean_weight) %&gt;%
+  step_impute_mean(mean_weight) %&gt;%
+* step_text_normalization(text) %&gt;%
+* step_tokenize(text) %&gt;%
+* step_stopwords(text) %&gt;%
+* step_tokenfilter(text, max_tokens = 500, min_times = 5) %&gt;%
+* step_tfidf(text)
+```
+
+
+---
+
+class: bg-full, bg2, middle, center
+
+&lt;div style="font-size: 110pt;"&gt;
+TOKENIZATION
+&lt;/div&gt;
+
+---
+
+class: bg-corners, bg2, middle, right
+
+&lt;div style="font-size: 50pt;"&gt;
+we want to take out blob of text and turn it into something smaller
+&lt;/div&gt;
+
+&lt;br&gt;
+
+.left[
+&lt;div style="font-size: 50pt;"&gt;
+something that we can count
+&lt;/div&gt;
+]
+
+---
+
+class: bg-right, bg2
+
+# Tokenization
+
+.pull-left.w80[
+- An essential part of most text analyses
+- Most common token == word, but sometimes we tokenize in a different way
+- Many options to take into consideration 
+
+We are extremely fortunate that splitting by .pink[white-space] works as a good baseline for English
+]
+
+---
+
+class: bg-corners, bg2
+
+# White spaces tokenization
+
+
+```r
+strsplit(beaver, "\\s")[[1]]
+```
+
+```
+##   [1] "Beavers"       "are"           "most"          "well"          "known"         "for"          
+##   [7] "their"         "distinctive"   "home-building" "that"          "can"           "be"           
+##  [13] "seen"          "in"            "rivers"        "and"           "streams."      "The"          
+##  [19] "beavers"       "dam"           "is"            "built"         "from"          "twigs,"       
+##  [25] "sticks,"       "leaves"        "and"           "mud"           "and"           "are"          
+##  [31] "surprisingly"  "strong."       "Here"          "the"           "beavers"       "can"          
+##  [37] "catch"         "their"         "food"          "and"           "swim"          "in"           
+##  [43] "the"           "water."        "Beavers"       "are"           "nocturnal"     "animals"      
+##  [49] "existing"      "in"            "the"           "forests"       "of"            "Europe"       
+##  [55] "and"           "North"         "America"       "(the"          "Canadian"      "beaver"       
+##  [61] "is"            "the"           "most"          "common"        "beaver)."      "Beavers"      
+##  [67] "use"           "their"         "large,"        "flat"          "shaped"        "tails,"       
+##  [73] "to"            "help"          "with"          "dam"           "building"      "and"          
+##  [79] "it"            "also"          "allows"        "the"           "beavers"       "to"           
+##  [85] "swim"          "at"            "speeds"        "of"            "up"            "to"           
+##  [91] "30"            "knots"         "per"           "hour."         "The"           "beaver's"     
+##  [97] "significance"  "is"            "acknowledged"  "in"            "Canada"        "by"           
+## [103] "the"           "fact"          "that"          "there"         "is"            "a"            
+## [109] "Canadian"      "Beaver"        "on"            "one"           "of"            "their"        
+## [115] "coins."        "The"           "beaver"        "colonies"      "create"        "one"          
+## [121] "or"            "more"          "dams"          "in"            "the"           "beaver"       
+## [127] "colonies'"     "habitat"       "to"            "provide"       "still,"        "deep"         
+## [133] "water"         "to"            "protect"       "the"           "beavers"       "against"      
+## [139] "predators."    "The"           "beavers"       "also"          "use"           "the"          
+## [145] "deep"          "water"         "created"       "using"         "beaver"        "dams"         
+## [151] "and"           "to"            "float"         "food"          "and"           "building"     
+## [157] "materials"     "along"         "the"           "river."        "In"            "1988"         
+## [163] "the"           "North"         "American"      "beaver"        "population"    "was"          
+## [169] "60-400"        "million."      "Recent"        "studies"       "have"          "estimated"    
+## [175] "there"         "are"           "now"           "around"        "6-12"          "million"      
+## [181] "beavers"       "found"         "in"            "the"           "wild."         "The"          
+## [187] "decline"       "in"            "beaver"        "populations"   "is"            "due"          
+## [193] "to"            "the"           "beavers"       "being"         "hunted"        "for"          
+## [199] "their"         "fur"           "and"           "for"           "the"           "beaver's"     
+## [205] "glands"        "that"          "are"           "used"          "as"            "medicine"     
+## [211] "and"           "perfume."      "The"           "beaver"        "is"            "also"         
+## [217] "hunted"        "because"       "the"           "beavers"       "harvesting"    "of"           
+## [223] "trees"         "and"           "the"           "beavers"       "flooding"      "of"           
+## [229] "waterways"     "may"           "interfere"     "with"          "other"         "human"        
+## [235] "land"          "uses."         "Beavers"       "are"           "known"         "for"          
+## [241] "their"         "danger"        "signal"        "which"         "the"           "beaver"       
+## [247] "makes"         "when"          "the"           "beaver"        "is"            "startled"     
+## [253] "or"            "frightened."   "A"             "swimming"      "beaver"        "will"         
+## [259] "rapidly"       "dive"          "while"         "forcefully"    "slapping"      "the"          
+## [265] "water"         "with"          "its"           "broad"         "tail."         "This"         
+## [271] "means"         "that"          "the"           "beaver"        "creates"       "a"            
+## [277] "loud"          "slapping"      "noise,"        "which"         "can"           "be"           
+## [283] "heard"         "over"          "large"         "distances"     "above"         "and"          
+## [289] "below"         "water."        "This"          "beaver"        "warning"       "noise"        
+## [295] "serves"        "as"            "a"             "warning"       "to"            "beavers"      
+## [301] "in"            "the"           "area."         "Once"          "a"             "beaver"       
+## [307] "has"           "made"          "this"          "danger"        "signal,"       "nearby"       
+## [313] "beavers"       "dive"          "and"           "may"           "not"           "come"         
+## [319] "back"          "up"            "for"           "some"          "time."         "Beavers"      
+## [325] "are"           "slow"          "on"            "land,"         "but"           "the"          
+## [331] "beavers"       "are"           "good"          "swimmers"      "that"          "can"          
+## [337] "stay"          "under"         "water"         "for"           "as"            "long"         
+## [343] "as"            "15"            "minutes"       "at"            "a"             "time."        
+## [349] "In"            "the"           "winter"        "the"           "beaver"        "does"         
+## [355] "not"           "hibernate"     "but"           "instead"       "stores"        "sticks"       
+## [361] "and"           "logs"          "underwater"    "that"          "the"           "beaver"       
+## [367] "can"           "then"          "feed"          "on"            "through"       "the"          
+## [373] "cold"          "winter."
+```
+
+---
+
+class: bg-corners, bg2
+
+# Tokenization: {tokenizers} package
+
+
+```r
+tokenizers::tokenize_words(animals$text[74])
+```
+
+```
+## [[1]]
+##   [1] "beavers"      "are"          "most"         "well"         "known"        "for"         
+##   [7] "their"        "distinctive"  "home"         "building"     "that"         "can"         
+##  [13] "be"           "seen"         "in"           "rivers"       "and"          "streams"     
+##  [19] "the"          "beavers"      "dam"          "is"           "built"        "from"        
+##  [25] "twigs"        "sticks"       "leaves"       "and"          "mud"          "and"         
+##  [31] "are"          "surprisingly" "strong"       "here"         "the"          "beavers"     
+##  [37] "can"          "catch"        "their"        "food"         "and"          "swim"        
+##  [43] "in"           "the"          "water"        "beavers"      "are"          "nocturnal"   
+##  [49] "animals"      "existing"     "in"           "the"          "forests"      "of"          
+##  [55] "europe"       "and"          "north"        "america"      "the"          "canadian"    
+##  [61] "beaver"       "is"           "the"          "most"         "common"       "beaver"      
+##  [67] "beavers"      "use"          "their"        "large"        "flat"         "shaped"      
+##  [73] "tails"        "to"           "help"         "with"         "dam"          "building"    
+##  [79] "and"          "it"           "also"         "allows"       "the"          "beavers"     
+##  [85] "to"           "swim"         "at"           "speeds"       "of"           "up"          
+##  [91] "to"           "30"           "knots"        "per"          "hour"         "the"         
+##  [97] "beaver's"     "significance" "is"           "acknowledged" "in"           "canada"      
+## [103] "by"           "the"          "fact"         "that"         "there"        "is"          
+## [109] "a"            "canadian"     "beaver"       "on"           "one"          "of"          
+## [115] "their"        "coins"        "the"          "beaver"       "colonies"     "create"      
+## [121] "one"          "or"           "more"         "dams"         "in"           "the"         
+## [127] "beaver"       "colonies"     "habitat"      "to"           "provide"      "still"       
+## [133] "deep"         "water"        "to"           "protect"      "the"          "beavers"     
+## [139] "against"      "predators"    "the"          "beavers"      "also"         "use"         
+## [145] "the"          "deep"         "water"        "created"      "using"        "beaver"      
+## [151] "dams"         "and"          "to"           "float"        "food"         "and"         
+## [157] "building"     "materials"    "along"        "the"          "river"        "in"          
+## [163] "1988"         "the"          "north"        "american"     "beaver"       "population"  
+## [169] "was"          "60"           "400"          "million"      "recent"       "studies"     
+## [175] "have"         "estimated"    "there"        "are"          "now"          "around"      
+## [181] "6"            "12"           "million"      "beavers"      "found"        "in"          
+## [187] "the"          "wild"         "the"          "decline"      "in"           "beaver"      
+## [193] "populations"  "is"           "due"          "to"           "the"          "beavers"     
+## [199] "being"        "hunted"       "for"          "their"        "fur"          "and"         
+## [205] "for"          "the"          "beaver's"     "glands"       "that"         "are"         
+## [211] "used"         "as"           "medicine"     "and"          "perfume"      "the"         
+## [217] "beaver"       "is"           "also"         "hunted"       "because"      "the"         
+## [223] "beavers"      "harvesting"   "of"           "trees"        "and"          "the"         
+## [229] "beavers"      "flooding"     "of"           "waterways"    "may"          "interfere"   
+## [235] "with"         "other"        "human"        "land"         "uses"         "beavers"     
+## [241] "are"          "known"        "for"          "their"        "danger"       "signal"      
+## [247] "which"        "the"          "beaver"       "makes"        "when"         "the"         
+## [253] "beaver"       "is"           "startled"     "or"           "frightened"   "a"           
+## [259] "swimming"     "beaver"       "will"         "rapidly"      "dive"         "while"       
+## [265] "forcefully"   "slapping"     "the"          "water"        "with"         "its"         
+## [271] "broad"        "tail"         "this"         "means"        "that"         "the"         
+## [277] "beaver"       "creates"      "a"            "loud"         "slapping"     "noise"       
+## [283] "which"        "can"          "be"           "heard"        "over"         "large"       
+## [289] "distances"    "above"        "and"          "below"        "water"        "this"        
+## [295] "beaver"       "warning"      "noise"        "serves"       "as"           "a"           
+## [301] "warning"      "to"           "beavers"      "in"           "the"          "area"        
+## [307] "once"         "a"            "beaver"       "has"          "made"         "this"        
+## [313] "danger"       "signal"       "nearby"       "beavers"      "dive"         "and"         
+## [319] "may"          "not"          "come"         "back"         "up"           "for"         
+## [325] "some"         "time"         "beavers"      "are"          "slow"         "on"          
+## [331] "land"         "but"          "the"          "beavers"      "are"          "good"        
+## [337] "swimmers"     "that"         "can"          "stay"         "under"        "water"       
+## [343] "for"          "as"           "long"         "as"           "15"           "minutes"     
+## [349] "at"           "a"            "time"         "in"           "the"          "winter"      
+## [355] "the"          "beaver"       "does"         "not"          "hibernate"    "but"         
+## [361] "instead"      "stores"       "sticks"       "and"          "logs"         "underwater"  
+## [367] "that"         "the"          "beaver"       "can"          "then"         "feed"        
+## [373] "on"           "through"      "the"          "cold"         "winter"
+```
+
+---
+
+class: bg-right, bg2
+
+# word boundary algorithm (ICU)
+
+&lt;div style="font-size: 11pt;"&gt;
+- Break at the start and end of text, unless the text is empty.
+- Do not break within CRLF (new line characters).
+- Otherwise, break before and after new lines (including CR and LF).
+- Do not break within emoji zwj sequences.
+- Keep horizontal whitespace together.
+- Ignore Format and Extend characters, except after sot, CR, LF, and new line.
+- Do not break between most letters.
+- Do not break letters across certain punctuation.
+- Do not break within sequences of digits, or digits adjacent to letters (“3a,” or “A3”).
+- Do not break within sequences, such as “3.2” or “3,456.789.”
+- Do not break between Katakana.
+- Do not break from extenders.
+- Do not break within emoji flag sequences.
+- Otherwise, break everywhere (including around ideographs).
+
+???
+
+finding word boundaries according to the specification from the International Components for Unicode (ICU)
+
+
+---
+
+class: bg-right, bg2
+
+# Tokenization considerations
+
+- Should we turn UPPERCASE letters to lowercase?
+
+
+--
+
+
+- How should we handle punctuation⁉️
+
+
+--
+
+
+- What about non-word characters .blue[inside] words?
+
+
+--
+
+
+- Should compound words be split or multi-word ideas be kept together?
+
+---
+
+class: bg-corners, bg2
+
+.pull-right.w80[
+# Problems
+
+
+```r
+table(c("ﬂowers", "bush", "flowers"))
+```
+]
+
+---
+
+class: bg-corners, bg2
+
+
+.pull-right.w80[
+# Problems
+
+
+```r
+table(c("ﬂowers", "bush", "flowers"))
+```
+
+```
+## 
+##    bush flowers  ﬂowers 
+##       1       1       1
+```
+]
+---
+
+class: bg-corners, bg2
+
+.pull-right.w80[
+# Problems
+
+
+```r
+tokenize_characters("ﬂowers")
+```
+
+```
+## [[1]]
+## [1] "ﬂ" "o" "w" "e" "r" "s"
+```
+
+Ligatures can sneak in everywhere!
+]
+
+---
+
+class: bg-left, bg2
+
+.pull-right.w80[
+# Problems
+
+This doesn't even begin to describe the difference between slang and domain knowledge
+
+- wow
+- wooow
+- wooooow
+- woooooooooow!!
+
+the same word? are they different enough?
+]
+
+---
+
+class: bg-right, bg2
+
+# Problems
+
+What about emojis?
+
+Are emojis words?
+
+- Lets get some some 🌮s
+- I love you ❤️
+
+---
+
+class: bg-full, bg2, middle, center
+
+&lt;div style="font-size: 100pt;"&gt;
+The domain you are in matters!
+&lt;/div&gt;
+
+---
+
+class: bg-corners, bg2
+
+.pull-right.w90[
+# {textrecipes}
+
+{textrecipes} realizes that there are millions of ways to tokenize and won't tie you down to one.
+
+Defaults to {tokenizers}
+
+But you can pass in your own tokenizer
+
+There are even bindings to other packages/languages
+
+spacyr, tokenizers.bpe, udpipe with more to come
+]
+
+---
+
+class: bg-right, bg2
+
+# Default {tokenizers}
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text)
+```
+]
+
+---
+
+class: bg-right, bg2
+
+# Default {tokenizers}
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text,
+                options = list(strip_punct = FALSE,
+                               lowercase = FALSE))
+```
+]
+
+---
+
+class: bg-right, bg2
+
+# Custom tokenizer
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text, 
+                custom_token = my_amazing_tokenizer)
+```
+]
+
+---
+
+class: bg-right, bg2
+
+# spacy via {spacyr}
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text, engine = "spacyr")
+```
+]
+
+---
+
+class: bg-right, bg2
+
+# {tokenizers.bpe}
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text, 
+                engine = "tokenizers.bpe",
+                training_options = list(vocab_size = 1000))
+```
+]
+
+---
+
+class: bg-right, bg2
+
+# {udpipe}
+
+.pull-left.w80[
+
+```r
+library(udpipe)
+udmodel &lt;- udpipe_download_model(language = "english")
+
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text, engine = "udpipe", 
+                training_options = list(model = udmodel))
+```
+]
+
+---
+
+class: bg-full, bg3, middle, center
+
+&lt;div style="font-size: 150pt;"&gt;
+STEMMING
+&lt;/div&gt;
+
+---
+
+class: bg-full, bg3, middle, right
+
+&lt;div style="font-size: 100pt;"&gt;
+Act of modifying tokens once they have become tokens
+&lt;/div&gt;
+
+
+---
+
+class: bg-right, bg3, middle
+
+&lt;div style="font-size: 70pt;"&gt;
+- Porter Stemmer
+- Ending s removal
+
+---
+
+class: bg-left, bg3, middle
+
+.pull-right.w80[
+&lt;div style="font-size: 50pt;"&gt;
+We are again combining buckets in the hope that they can be treated equally
+&lt;/div&gt;
+]
+
+---
+
+class: bg-right, bg3
+
+# Stemming Example
+
+
+```
+## # A tibble: 8 x 4
+##   `Original word` `Remove S`   `Plural endings` `Porter stemming`
+##   &lt;chr&gt;           &lt;chr&gt;        &lt;chr&gt;            &lt;chr&gt;            
+## 1 distinctive     distinctive  distinctive      distinct         
+## 2 building        building     building         build            
+## 3 surprisingly    surprisingly surprisingly     surprisingli     
+## 4 animals         animal       animal           anim             
+## 5 beaver          beaver       beaver           beaver           
+## 6 significance    significance significance     signific         
+## 7 colonies        colonie      colony           coloni           
+## 8 studies         studie       study            studi
+```
+
+---
+
+class: bg-right, bg3
+
+# Default {SnowballC}
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stem(text)
+```
+]
+
+---
+
+class: bg-right, bg3
+
+# Custom Stemming function
+
+.pull-left.w80[
+
+```r
+remove_s &lt;- function(x) gsub("s$", "", x)
+
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stem(text, custom_stemmer = remove_s)
+```
+]
+
+---
+
+class: bg-corners, bg3
+
+.pull-right.w90[
+# Lemmatization
+
+Works a little stronger then stemming, will take a little while longer to run
+
+Implementations:
+
+- spacyr
+- udpipe
+]
+
+---
+
+class: bg-right, bg3
+
+# spacy lemmatization
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text, engine = "spacyr") %&gt;%
+  step_lemma(text)
+```
+]
+
+---
+
+class: bg-full, bg4, middle, center
+
+&lt;div style="font-size: 200pt;"&gt;
+STOP WORDS
+&lt;/div&gt;
+
+---
+
+class: bg-corners, bg4
+
+.center[
+# Definitions from the Web
+]
+
+--
+
+&gt; "In natural language processing, useless words (data), are referred to as stop words."
+
+&lt;br&gt;
+
+--
+ 
+&gt; "In computing, stop words are words that are filtered out before or after the natural language data (text) are processed."
+
+&lt;br&gt;
+
+--
+
+&gt; "Stopwords are the words in any language which does not add much meaning to a sentence. They can safely be ignored without sacrificing the meaning of the sentence"
+
+---
+
+class: bg-swirl, bg4 
+ 
+.center[
+&lt;span, style = 'font-size:400px;'&gt;🤔&lt;/span&gt;
+]
+
+---
+
+class: bg-full, bg4, middle, right
+
+&lt;div style="font-size: 70pt;"&gt;
+this gives the illusion that stop words are easy to work with and are without problems
+&lt;/div&gt;
+
+---
+
+class: bg-corners, bg4
+
+.right[
+&lt;div style="font-size: 50pt;"&gt;
+what is stop words really?
+&lt;/div&gt;
+]
+
+&lt;br&gt;
+
+&lt;div style="font-size: 40pt;"&gt;
+Low information words that contribute little value to task
+&lt;/div&gt;
+
+&lt;br&gt;
+
+&lt;div style="font-size: 40pt;"&gt;
+The information of words lives on a continuum
+&lt;/div&gt;
+
+---
+
+.pull-left[
+## Word information
+
+Each rectangle represents a word in 1 document
+
+We will illustrate the information that word carries with color.
+
+&lt;span, style = 'color:#3E049CFF;'&gt;low information words&lt;/span&gt; 
+
+&lt;span, style = 'color:#FCCD25FF;'&gt;high information words&lt;/span&gt;
+
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+## Word information
+
+Uniform information
+
+If this was true then it would hurt to remove any words
+
+# 👎
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-22-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+## Word information
+
+Random information
+
+No way to figure out which words to remove
+
+# 👎
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-23-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+## Word information
+
+Random information
+
+No way to figure out which words to remove
+
+# 👎
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-24-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+## Word information
+
+High variance information
+(diamonds in the rough)
+
+Few words have a lot of information
+
+most words have no information
+
+# 👍
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-25-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+## Word information
+
+High variance information
+(diamonds in the rough)
+
+Few words have a lot of information
+
+most words have no information
+
+# 👍
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+## Word information
+
+Low variance information
+
+Smooth transition between low and high information words
+
+# 👍
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-27-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.pull-left[
+## Word information
+
+Low variance information
+
+Smooth transition between low and high information words
+
+# 👍
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-28-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+.center[
+# Information distribution
+]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+.center[
+# Information distribution
+]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-30-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+.center[
+# Information distribution
+]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-31-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+.center[
+# Information distribution
+]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-32-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+.center[
+# Information distribution
+]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: bg-right, bg4
+
+# How can we handle this
+
+- pre-made lists
+- homemade list
+
+---
+
+class: bg-right, bg4
+
+# Premade list
+
+I have talked about stop words as if there is only a handful lists out there
+
+And each list is well constructed
+
+---
+
+class: bg-corners, bg4
+
+# English stop word lists
+
+.pull-left[
+- Galago (forumstop)
+- EBSCOhost
+- CoreNLP (Hardcoded)
+- Ranks NL (Google)
+- Lucene, Solr, Elastisearch
+- MySQL (InnoDB)
+- Ovid (Medical information services)
+]
+
+.pull-right[
+- Bow (libbow, rainbow, arrow, crossbow)
+- LingPipe
+- Vowpal Wabbit (doc2lda)
+- Text Analytics 101
+- LexisNexis®
+- Okapi (gsl.cacm)
+- TextFixer
+- DKPro
+]
+
+---
+class: bg-corners, bg4
+
+# English stop word lists
+
+.pull-left[
+- Postgres
+- CoreNLP (Acronym)
+- NLTK
+- Spark ML lib
+- MongoDB
+- Quanteda
+- Ranks NL (Default)
+- Snowball (Original)
+]
+
+.pull-right[
+- Xapian
+- 99webTools
+- Reuters Web of Science™
+- Function Words (Cook 1988)
+- Okapi (gsl.sample)
+- Snowball (Expanded)
+- Galago (stopStructure)
+- DataScienceDojo
+]
+
+---
+
+class: bg-corners, bg4
+
+# English stop word lists
+
+.pull-left[
+- CoreNLP (stopwords.txt)
+- OkapiFramework
+- ATIRE (NCBI Medline)
+- scikit-learn
+- Glasgow IR
+- Function Words (Gilner, Morales 2005)
+- Gensim
+]
+
+.pull-right[
+- Okapi (Expanded gsl.cacm)
+- spaCy
+- C99 and TextTiling
+- Galago (inquery)
+- Indri
+- Onix, Lextek
+- GATE (Keyphrase Extraction)
+]
+
+---
+
+class: bg-left, bg4
+
+.pull-right.w80[
+
+&lt;div style="font-size: 80pt;"&gt;
+Stopwords lists are sensitive to
+&lt;/div&gt;
+
+&lt;div style="font-size: 50pt;"&gt;
+- tokenization
+- capitalization
+- stemming
+]
+
+---
+
+class: bg-right, bg4
+
+&lt;div style="font-size: 50pt;"&gt;
+Non-English stop word lists
+&lt;/div&gt;
+
+- Make sure that your list works in the target language
+- Direct translation of English stop word list will not be sufficient
+- Know the target language or
+- Hire consultant that knows the language
+
+---
+
+class: bg-full, bg4, middle, center
+
+&lt;div style="font-size: 140pt;"&gt;
+LOOK AT YOUR STOP WORD LIST
+&lt;/div&gt;
+
+---
+
+class: bg-corners, bg4
+
+# funky stop words quiz #1
+
+.pull-left[
+- he's
+- she's
+- himself
+- herself
+]
+
+<div class="countdown" id="timer_60c86ae9" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">30</span></code>
+</div>
+
+---
+
+class: bg-corners, bg4
+
+# funky stop words quiz #1
+
+.pull-left[
+- he's
+- .orange[she's]
+- himself
+- herself
+]
+
+.pull-right[
+.orange[she's] doesn't appear in the SMART list
+]
+
+---
+
+class: bg-corners, bg4
+
+# funky stop words quiz #2
+
+.pull-left[
+- owl
+- bee
+- fify
+- system1
+]
+
+<div class="countdown" id="timer_60c86953" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">30</span></code>
+</div>
+
+---
+
+class: bg-corners, bg4
+
+# funky stop words quiz #2
+
+.pull-left[
+- owl
+- bee
+- .orange[fify]
+- system1
+]
+
+.pull-right[
+.orange[fify] was left undetected for 3 years (2012 to 2015) in scikit-learn
+]
+
+---
+
+class: bg-corners, bg4
+
+# funky stop words quiz #3
+
+.pull-left[
+- substantially
+- successfully
+- sufficiently
+- statistically
+]
+
+<div class="countdown" id="timer_60c86ad0" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">30</span></code>
+</div>
+
+---
+
+class: bg-corners, bg4
+
+# funky stop words quiz #3
+
+.pull-left[
+- substantially
+- successfully
+- sufficiently
+- .orange[statistically]
+]
+
+.pull-right[
+.orange[statistically] doesn't appear in the Stopwords ISO list
+]
+
+---
+
+class: bg-right, bg4
+
+.pull-left.w80[
+# General idea about removing tokens
+
+We can remove high frequency words (we should look at them, because they might have signal)
+
+low frequency (more noise then signal)
+
+domain knowledge
+
+computational reasons
+]
+
+---
+
+# Stop word removal using {stopwords}
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text)
+```
+]
+
+---
+
+# Stop word removal using {stopwords}
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text, 
+                 stopword_source = "smart")
+```
+]
+
+---
+
+# Stop word removal using {stopwords}
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text, 
+                 language = "de",
+                 stopword_source = "snowball")
+```
+]
+
+---
+
+# Stop word removal using {stopwords}
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text, 
+                 custom_stopword_source = my_stopwords)
+```
+]
+
+---
+
+# Stop word removal by filtering
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_tokenfilter(text, min_times = 10)
+```
+]
+
+---
+
+# Stop word removal by filtering
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_tokenfilter(text, max_times = 100)
+```
+]
+
+---
+
+# Stop word removal by filtering
+
+.pull-left.w80[
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_tokenfilter(text, max_tokens = 2000)
+```
+]
+
+---
+
+class: bg-full, bg5, middle, center
+
+&lt;div style="font-size: 120pt;"&gt;
+EMBEDDINGS
+&lt;/div&gt;
+
+---
+
+class: bg-full, bg5, middle, center
+
+&lt;div style="font-size: 120pt;"&gt;
+turning tokens into numbers
+&lt;/div&gt;
+
+---
+
+class: bg-left, bg5
+
+.pull-right.w80[
+&lt;div style="font-size: 50pt;"&gt;
+- Count
+- tfidf
+- Embeddings
+- Hashing
+- Sequence one-hot
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w90[
+
+# Counts
+
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text) %&gt;%
+  step_tokenfilter(text, max_tokens = 1000) %&gt;%
+  step_tf(text)
+```
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w90[
+
+# Counts
+
+
+```
+## # A tibble: 610 x 5
+##    tf_text_ability tf_text_able tf_text_according tf_text_across tf_text_active
+##              &lt;dbl&gt;        &lt;dbl&gt;             &lt;dbl&gt;          &lt;dbl&gt;          &lt;dbl&gt;
+##  1               0            7                 0              0              0
+##  2               0            0                 0              0              2
+##  3               0            4                 0              0              0
+##  4               0            0                 0              0              4
+##  5               0            2                 0              0              0
+##  6               0            3                 0              2              1
+##  7               0            1                 0              2              1
+##  8               0            2                 0              1              0
+##  9               0            3                 0              0              0
+## 10               0            2                 0              1              0
+## # … with 600 more rows
+```
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w90[
+
+# Binary Counts
+
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text) %&gt;%
+  step_tokenfilter(text, max_tokens = 1000) %&gt;%
+  step_tf(text, weight_scheme = "binary")
+```
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w90[
+
+# Binary Counts
+
+
+```
+## # A tibble: 610 x 5
+##    tf_text_ability tf_text_able tf_text_according tf_text_across tf_text_active
+##    &lt;lgl&gt;           &lt;lgl&gt;        &lt;lgl&gt;             &lt;lgl&gt;          &lt;lgl&gt;         
+##  1 FALSE           TRUE         FALSE             FALSE          FALSE         
+##  2 FALSE           FALSE        FALSE             FALSE          TRUE          
+##  3 FALSE           TRUE         FALSE             FALSE          FALSE         
+##  4 FALSE           FALSE        FALSE             FALSE          TRUE          
+##  5 FALSE           TRUE         FALSE             FALSE          FALSE         
+##  6 FALSE           TRUE         FALSE             TRUE           TRUE          
+##  7 FALSE           TRUE         FALSE             TRUE           TRUE          
+##  8 FALSE           TRUE         FALSE             TRUE           FALSE         
+##  9 FALSE           TRUE         FALSE             FALSE          FALSE         
+## 10 FALSE           TRUE         FALSE             TRUE           FALSE         
+## # … with 600 more rows
+```
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w90[
+
+# TF-IDF
+
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text) %&gt;%
+  step_tokenfilter(text, max_tokens = 1000) %&gt;%
+  step_tfidf(text)
+```
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w90[
+
+# TF-IDF
+
+
+```
+## # A tibble: 610 x 4
+##    tfidf_text_ability tfidf_text_able tfidf_text_according tfidf_text_across
+##                 &lt;dbl&gt;           &lt;dbl&gt;                &lt;dbl&gt;             &lt;dbl&gt;
+##  1                  0         0.0159                     0           0      
+##  2                  0         0                          0           0      
+##  3                  0         0.0106                     0           0      
+##  4                  0         0                          0           0      
+##  5                  0         0.0112                     0           0      
+##  6                  0         0.00559                    0           0.00441
+##  7                  0         0.00249                    0           0.00589
+##  8                  0         0.00500                    0           0.00295
+##  9                  0         0.00697                    0           0      
+## 10                  0         0.00433                    0           0.00256
+## # … with 600 more rows
+```
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w90[
+# Feature Hashing
+
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text) %&gt;%
+  step_texthash(text, num_terms = 1024)
+```
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w90[
+
+# Feature Hashing (1024)
+
+
+```
+## # A tibble: 610 x 5
+##    text_hash0001 text_hash0002 text_hash0003 text_hash0004 text_hash0005
+##            &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;
+##  1            -1            -5             1            -1             0
+##  2             0             0             0             0             0
+##  3             0             0             0             0             0
+##  4             0             0             0            -1             0
+##  5            -1             0             0             0             0
+##  6             0            -2             0             0             0
+##  7             0            -1             1             0             0
+##  8             0            -1             0             0             0
+##  9             0             0             0             0             0
+## 10             0            -2             0             0             0
+## # … with 600 more rows
+```
+]
+
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w90[
+
+# Feature Hashing (64)
+
+
+```
+## # A tibble: 610 x 5
+##    text_hash01 text_hash02 text_hash03 text_hash04 text_hash05
+##          &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+##  1           0          -5           5           0           7
+##  2           0          -2          27          -1           2
+##  3           0          -1           0           0           2
+##  4         -23          -1           6          -1           4
+##  5          -4           0           2           0           4
+##  6           2          -6           5           0           4
+##  7          -1          -3           3           1           2
+##  8           2          -1           3          -3           0
+##  9           0          -2           1           1           2
+## 10          -1           2           7          -2           1
+## # … with 600 more rows
+```
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w90[
+
+# Feature Hashing (16)
+
+
+```
+## # A tibble: 610 x 5
+##    text_hash01 text_hash02 text_hash03 text_hash04 text_hash05
+##          &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+##  1          -4          -9           7          20          39
+##  2          -4         -16          24           3          -2
+##  3          -5          -8           5         -39          35
+##  4         -27          -5           5          17           2
+##  5           1          -5           4           4           2
+##  6          -4         -16           5          24         -19
+##  7         -15          -7           2          16           8
+##  8          -4           1           2           7           3
+##  9         -10         -15           3          66         -12
+## 10         -22          -9          11          13           2
+## # … with 600 more rows
+```
+]
+
+---
+
+class: bg-right, bg5
+
+# word embeddings
+
+&lt;div style="font-size: 50pt;"&gt;
+- word2vec
+- fasttext
+- glove
+
+---
+
+class: bg-right, bg5
+
+.pull-left.w80[
+# word embeddings
+
+(super simplified)
+
+They all try to transforming the text to have different points in space mean different words
+
+(doesn't have to be words, this can be applied to any type of tokens)
+]
+
+---
+
+class: bg-right, bg5
+
+.pull-left.w80[
+# word embeddings
+
+Since we are staying with tabular output we can't use this information to its fullest
+
+summing, mean, maxing could be used in a pinch
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w90[
+
+# word embedding
+
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_word_embeddings(text,
+                       embeddings = glove_embedding,
+                       aggregation = "mean")
+```
+]
+
+---
+
+class: bg-left, bg5
+
+.pull-right.w80[
+# sequence one-hot
+
+all other methods we have seen so far are "bag-of-words"
+
+sequence  one-hot allows up to retain some sort of token-order
+
+this could be useful for some DL methods
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w80[
+# sequence one-hot
+
+
+```r
+rec &lt;- recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_sequence_onehot(text)
+```
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w80[
+# sequence one-hot
+
+
+```r
+recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_sequence_onehot(text) %&gt;%
+  prep() %&gt;%
+  juice() %&gt;%
+  select(1:5)
+```
+]
+
+---
+
+class: bg-corners, bg5
+
+.pull-right.w80[
+# sequence one-hot
+
+
+```r
+recipe(~ text, data = animals) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_sequence_onehot(text) %&gt;%
+  prep() %&gt;%
+  tidy(2) %&gt;%
+  slice(10406:10415)
+```
+]
+
+---
+
+class: bg-right, bg5
+
+.pull-left.w80[
+# Interpretations
+
+There is a lot of talk of algorithmic bias
+
+Much of this is related to the many advances to large language models
+
+A general modeling tip is typically to start simple with a baseline and then build up
+
+Benefits of using these count based methods is that they are quite easy to inspect
+]
+
+---
+
+class: bg-right, bg5
+
+.pull-left.w80[
+# Interpretations
+
+This can be passed into topic modeling, supervised modeling
+
+the steps you took along the way will influence what type of model works better
+
+look at the models ahead, many of these methods produce sparse and correlated data
+]
+
+---
+
+class: bg-corners
+
+.pull-left[
+
+.center[
+![:scale 70%](images/cover.jpg)
+]
+
+]
+
+.pull-right[
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+&lt;div style="font-size: 70pt;"&gt;
+smltar.com
+&lt;/div&gt;
+
+More depth and examples focused on supervised learning
+
+Available for preorder now
+]
+
+---
+
+class: bg-corners, bg5, center, middle
+
+# Thank you!
+
+### <i class="fab  fa-github "></i> [EmilHvitfeldt](https://github.com/EmilHvitfeldt/)
+### <i class="fab  fa-twitter "></i> [@Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)
+### <i class="fab  fa-linkedin "></i> [emilhvitfeldt](linkedin.com/in/emilhvitfeldt/)
+### <i class="fas  fa-laptop "></i> [www.hvitfeldt.me](www.hvitfeldt.me)
+
+Slides created via the R package [xaringan](https://github.com/yihui/xaringan).
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<style>
+.bg-full {
+  background-image: url(theme/full.png);
+  background-position: center;
+  background-size: cover;
+}
+
+.bg-swirl {
+  background-image: url(theme/swirl.png);
+  background-position: center;
+  background-size: cover;
+}
+
+.bg-left {
+  background-image: url(theme/left.png);
+  background-position: center;
+  background-size: cover;
+}
+
+.bg-corners {
+  background-image: url(theme/corners.png);
+  background-position: center;
+  background-size: cover;
+}
+
+.bg-right {
+  background-image: url(theme/right.png);
+  background-position: center;
+  background-size: cover;
+}
+
+.bg1 {
+  filter: hue-rotate(0deg);
+}
+.bg2 {
+  filter: hue-rotate(30deg);
+}
+.bg3 {
+  filter: hue-rotate(60deg);
+}
+.bg4 {
+  filter: hue-rotate(90deg);
+}
+.bg5 {
+  filter: hue-rotate(120deg);
+}
+
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-full' +
+    '.bg1'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-full bg1"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-swirl' +
+    '.bg1'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-swirl bg1"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-left' +
+    '.bg1'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-left bg1"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-corners' +
+    '.bg1'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-corners bg1"></div>';
+  });
+
+  document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-right' +
+    '.bg1'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-right bg1"></div>';
+  })
+
+
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-full' +
+    '.bg2'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-full bg2"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-swirl' +
+    '.bg2'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-swirl bg2"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-left' +
+    '.bg2'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-left bg2"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-corners' +
+    '.bg2'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-corners bg2"></div>';
+  });
+
+  document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-right' +
+    '.bg2'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-right bg2"></div>';
+  })
+
+
+
+  document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-full' +
+    '.bg3'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-full bg3"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-swirl' +
+    '.bg3'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-swirl bg3"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-left' +
+    '.bg3'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-left bg3"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-corners' +
+    '.bg3'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-corners bg3"></div>';
+  });
+
+  document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-right' +
+    '.bg3'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-right bg3"></div>';
+  })
+
+
+
+  document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-full' +
+    '.bg4'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-full bg4"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-swirl' +
+    '.bg4'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-swirl bg4"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-left' +
+    '.bg4'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-left bg4"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-corners' +
+    '.bg4'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-corners bg4"></div>';
+  });
+
+  document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-right' +
+    '.bg4'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-right bg4"></div>';
+  })
+
+
+
+  document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-full' +
+    '.bg5'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-full bg5"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-swirl' +
+    '.bg5'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-swirl bg5"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-left' +
+    '.bg5'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-left bg5"></div>';
+  });
+
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-corners' +
+    '.bg5'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-corners bg5"></div>';
+  });
+
+  document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    '.bg-right' +
+    '.bg5'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="bg-right bg5"></div>';
+  })
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
