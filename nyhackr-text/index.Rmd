@@ -301,6 +301,28 @@ We are limiting this to tabular data
 I would rather get a good foundation then work with the cutting edge 
 ]
 
+---
+
+# Full recipe
+
+```{r}
+library(animals)
+library(recipes)
+library(textrecipes)
+
+rec_spec <- recipe(diet ~ ., data = animals) %>%
+  step_novel(lifestyle) %>%
+  step_unknown(lifestyle) %>%
+  step_other(lifestyle, threshold = 0.01) %>%
+  step_dummy(lifestyle) %>%
+  step_log(mean_weight) %>%
+  step_impute_mean(mean_weight) %>%
+  step_text_normalization(text) %>%
+  step_tokenize(text) %>%
+  step_stopwords(text) %>%
+  step_tokenfilter(text, max_tokens = 500, min_times = 5) %>%
+  step_tfidf(text)
+```
 
 ---
 
@@ -362,7 +384,7 @@ TOKENIZATION
 class: bg-corners, bg2, middle, right
 
 <div style="font-size: 50pt;">
-we want to take out blob of text and turn it into something smaller
+we want to take a blob of text and turn it into something smaller
 </div>
 
 <br>

@@ -328,6 +328,29 @@ We are limiting this to tabular data
 I would rather get a good foundation then work with the cutting edge 
 ]
 
+---
+
+# Full recipe
+
+
+```r
+library(animals)
+library(recipes)
+library(textrecipes)
+
+rec_spec &lt;- recipe(diet ~ ., data = animals) %&gt;%
+  step_novel(lifestyle) %&gt;%
+  step_unknown(lifestyle) %&gt;%
+  step_other(lifestyle, threshold = 0.01) %&gt;%
+  step_dummy(lifestyle) %&gt;%
+  step_log(mean_weight) %&gt;%
+  step_impute_mean(mean_weight) %&gt;%
+  step_text_normalization(text) %&gt;%
+  step_tokenize(text) %&gt;%
+  step_stopwords(text) %&gt;%
+  step_tokenfilter(text, max_tokens = 500, min_times = 5) %&gt;%
+  step_tfidf(text)
+```
 
 ---
 
@@ -391,7 +414,7 @@ TOKENIZATION
 class: bg-corners, bg2, middle, right
 
 &lt;div style="font-size: 50pt;"&gt;
-we want to take out blob of text and turn it into something smaller
+we want to take a blob of text and turn it into something smaller
 &lt;/div&gt;
 
 &lt;br&gt;
@@ -428,68 +451,99 @@ strsplit(beaver, "\\s")[[1]]
 ```
 
 ```
-##   [1] "Beavers"       "are"           "most"          "well"          "known"         "for"          
-##   [7] "their"         "distinctive"   "home-building" "that"          "can"           "be"           
-##  [13] "seen"          "in"            "rivers"        "and"           "streams."      "The"          
-##  [19] "beavers"       "dam"           "is"            "built"         "from"          "twigs,"       
-##  [25] "sticks,"       "leaves"        "and"           "mud"           "and"           "are"          
-##  [31] "surprisingly"  "strong."       "Here"          "the"           "beavers"       "can"          
-##  [37] "catch"         "their"         "food"          "and"           "swim"          "in"           
-##  [43] "the"           "water."        "Beavers"       "are"           "nocturnal"     "animals"      
-##  [49] "existing"      "in"            "the"           "forests"       "of"            "Europe"       
-##  [55] "and"           "North"         "America"       "(the"          "Canadian"      "beaver"       
-##  [61] "is"            "the"           "most"          "common"        "beaver)."      "Beavers"      
-##  [67] "use"           "their"         "large,"        "flat"          "shaped"        "tails,"       
-##  [73] "to"            "help"          "with"          "dam"           "building"      "and"          
-##  [79] "it"            "also"          "allows"        "the"           "beavers"       "to"           
-##  [85] "swim"          "at"            "speeds"        "of"            "up"            "to"           
-##  [91] "30"            "knots"         "per"           "hour."         "The"           "beaver's"     
-##  [97] "significance"  "is"            "acknowledged"  "in"            "Canada"        "by"           
-## [103] "the"           "fact"          "that"          "there"         "is"            "a"            
-## [109] "Canadian"      "Beaver"        "on"            "one"           "of"            "their"        
-## [115] "coins."        "The"           "beaver"        "colonies"      "create"        "one"          
-## [121] "or"            "more"          "dams"          "in"            "the"           "beaver"       
-## [127] "colonies'"     "habitat"       "to"            "provide"       "still,"        "deep"         
-## [133] "water"         "to"            "protect"       "the"           "beavers"       "against"      
-## [139] "predators."    "The"           "beavers"       "also"          "use"           "the"          
-## [145] "deep"          "water"         "created"       "using"         "beaver"        "dams"         
-## [151] "and"           "to"            "float"         "food"          "and"           "building"     
-## [157] "materials"     "along"         "the"           "river."        "In"            "1988"         
-## [163] "the"           "North"         "American"      "beaver"        "population"    "was"          
-## [169] "60-400"        "million."      "Recent"        "studies"       "have"          "estimated"    
-## [175] "there"         "are"           "now"           "around"        "6-12"          "million"      
-## [181] "beavers"       "found"         "in"            "the"           "wild."         "The"          
-## [187] "decline"       "in"            "beaver"        "populations"   "is"            "due"          
-## [193] "to"            "the"           "beavers"       "being"         "hunted"        "for"          
-## [199] "their"         "fur"           "and"           "for"           "the"           "beaver's"     
-## [205] "glands"        "that"          "are"           "used"          "as"            "medicine"     
-## [211] "and"           "perfume."      "The"           "beaver"        "is"            "also"         
-## [217] "hunted"        "because"       "the"           "beavers"       "harvesting"    "of"           
-## [223] "trees"         "and"           "the"           "beavers"       "flooding"      "of"           
-## [229] "waterways"     "may"           "interfere"     "with"          "other"         "human"        
-## [235] "land"          "uses."         "Beavers"       "are"           "known"         "for"          
-## [241] "their"         "danger"        "signal"        "which"         "the"           "beaver"       
-## [247] "makes"         "when"          "the"           "beaver"        "is"            "startled"     
-## [253] "or"            "frightened."   "A"             "swimming"      "beaver"        "will"         
-## [259] "rapidly"       "dive"          "while"         "forcefully"    "slapping"      "the"          
-## [265] "water"         "with"          "its"           "broad"         "tail."         "This"         
-## [271] "means"         "that"          "the"           "beaver"        "creates"       "a"            
-## [277] "loud"          "slapping"      "noise,"        "which"         "can"           "be"           
-## [283] "heard"         "over"          "large"         "distances"     "above"         "and"          
-## [289] "below"         "water."        "This"          "beaver"        "warning"       "noise"        
-## [295] "serves"        "as"            "a"             "warning"       "to"            "beavers"      
-## [301] "in"            "the"           "area."         "Once"          "a"             "beaver"       
-## [307] "has"           "made"          "this"          "danger"        "signal,"       "nearby"       
-## [313] "beavers"       "dive"          "and"           "may"           "not"           "come"         
-## [319] "back"          "up"            "for"           "some"          "time."         "Beavers"      
-## [325] "are"           "slow"          "on"            "land,"         "but"           "the"          
-## [331] "beavers"       "are"           "good"          "swimmers"      "that"          "can"          
-## [337] "stay"          "under"         "water"         "for"           "as"            "long"         
-## [343] "as"            "15"            "minutes"       "at"            "a"             "time."        
-## [349] "In"            "the"           "winter"        "the"           "beaver"        "does"         
-## [355] "not"           "hibernate"     "but"           "instead"       "stores"        "sticks"       
-## [361] "and"           "logs"          "underwater"    "that"          "the"           "beaver"       
-## [367] "can"           "then"          "feed"          "on"            "through"       "the"          
+##   [1] "Beavers"       "are"           "most"          "well"         
+##   [5] "known"         "for"           "their"         "distinctive"  
+##   [9] "home-building" "that"          "can"           "be"           
+##  [13] "seen"          "in"            "rivers"        "and"          
+##  [17] "streams."      "The"           "beavers"       "dam"          
+##  [21] "is"            "built"         "from"          "twigs,"       
+##  [25] "sticks,"       "leaves"        "and"           "mud"          
+##  [29] "and"           "are"           "surprisingly"  "strong."      
+##  [33] "Here"          "the"           "beavers"       "can"          
+##  [37] "catch"         "their"         "food"          "and"          
+##  [41] "swim"          "in"            "the"           "water."       
+##  [45] "Beavers"       "are"           "nocturnal"     "animals"      
+##  [49] "existing"      "in"            "the"           "forests"      
+##  [53] "of"            "Europe"        "and"           "North"        
+##  [57] "America"       "(the"          "Canadian"      "beaver"       
+##  [61] "is"            "the"           "most"          "common"       
+##  [65] "beaver)."      "Beavers"       "use"           "their"        
+##  [69] "large,"        "flat"          "shaped"        "tails,"       
+##  [73] "to"            "help"          "with"          "dam"          
+##  [77] "building"      "and"           "it"            "also"         
+##  [81] "allows"        "the"           "beavers"       "to"           
+##  [85] "swim"          "at"            "speeds"        "of"           
+##  [89] "up"            "to"            "30"            "knots"        
+##  [93] "per"           "hour."         "The"           "beaver's"     
+##  [97] "significance"  "is"            "acknowledged"  "in"           
+## [101] "Canada"        "by"            "the"           "fact"         
+## [105] "that"          "there"         "is"            "a"            
+## [109] "Canadian"      "Beaver"        "on"            "one"          
+## [113] "of"            "their"         "coins."        "The"          
+## [117] "beaver"        "colonies"      "create"        "one"          
+## [121] "or"            "more"          "dams"          "in"           
+## [125] "the"           "beaver"        "colonies'"     "habitat"      
+## [129] "to"            "provide"       "still,"        "deep"         
+## [133] "water"         "to"            "protect"       "the"          
+## [137] "beavers"       "against"       "predators."    "The"          
+## [141] "beavers"       "also"          "use"           "the"          
+## [145] "deep"          "water"         "created"       "using"        
+## [149] "beaver"        "dams"          "and"           "to"           
+## [153] "float"         "food"          "and"           "building"     
+## [157] "materials"     "along"         "the"           "river."       
+## [161] "In"            "1988"          "the"           "North"        
+## [165] "American"      "beaver"        "population"    "was"          
+## [169] "60-400"        "million."      "Recent"        "studies"      
+## [173] "have"          "estimated"     "there"         "are"          
+## [177] "now"           "around"        "6-12"          "million"      
+## [181] "beavers"       "found"         "in"            "the"          
+## [185] "wild."         "The"           "decline"       "in"           
+## [189] "beaver"        "populations"   "is"            "due"          
+## [193] "to"            "the"           "beavers"       "being"        
+## [197] "hunted"        "for"           "their"         "fur"          
+## [201] "and"           "for"           "the"           "beaver's"     
+## [205] "glands"        "that"          "are"           "used"         
+## [209] "as"            "medicine"      "and"           "perfume."     
+## [213] "The"           "beaver"        "is"            "also"         
+## [217] "hunted"        "because"       "the"           "beavers"      
+## [221] "harvesting"    "of"            "trees"         "and"          
+## [225] "the"           "beavers"       "flooding"      "of"           
+## [229] "waterways"     "may"           "interfere"     "with"         
+## [233] "other"         "human"         "land"          "uses."        
+## [237] "Beavers"       "are"           "known"         "for"          
+## [241] "their"         "danger"        "signal"        "which"        
+## [245] "the"           "beaver"        "makes"         "when"         
+## [249] "the"           "beaver"        "is"            "startled"     
+## [253] "or"            "frightened."   "A"             "swimming"     
+## [257] "beaver"        "will"          "rapidly"       "dive"         
+## [261] "while"         "forcefully"    "slapping"      "the"          
+## [265] "water"         "with"          "its"           "broad"        
+## [269] "tail."         "This"          "means"         "that"         
+## [273] "the"           "beaver"        "creates"       "a"            
+## [277] "loud"          "slapping"      "noise,"        "which"        
+## [281] "can"           "be"            "heard"         "over"         
+## [285] "large"         "distances"     "above"         "and"          
+## [289] "below"         "water."        "This"          "beaver"       
+## [293] "warning"       "noise"         "serves"        "as"           
+## [297] "a"             "warning"       "to"            "beavers"      
+## [301] "in"            "the"           "area."         "Once"         
+## [305] "a"             "beaver"        "has"           "made"         
+## [309] "this"          "danger"        "signal,"       "nearby"       
+## [313] "beavers"       "dive"          "and"           "may"          
+## [317] "not"           "come"          "back"          "up"           
+## [321] "for"           "some"          "time."         "Beavers"      
+## [325] "are"           "slow"          "on"            "land,"        
+## [329] "but"           "the"           "beavers"       "are"          
+## [333] "good"          "swimmers"      "that"          "can"          
+## [337] "stay"          "under"         "water"         "for"          
+## [341] "as"            "long"          "as"            "15"           
+## [345] "minutes"       "at"            "a"             "time."        
+## [349] "In"            "the"           "winter"        "the"          
+## [353] "beaver"        "does"          "not"           "hibernate"    
+## [357] "but"           "instead"       "stores"        "sticks"       
+## [361] "and"           "logs"          "underwater"    "that"         
+## [365] "the"           "beaver"        "can"           "then"         
+## [369] "feed"          "on"            "through"       "the"          
 ## [373] "cold"          "winter."
 ```
 
@@ -506,69 +560,82 @@ tokenizers::tokenize_words(animals$text[74])
 
 ```
 ## [[1]]
-##   [1] "beavers"      "are"          "most"         "well"         "known"        "for"         
-##   [7] "their"        "distinctive"  "home"         "building"     "that"         "can"         
-##  [13] "be"           "seen"         "in"           "rivers"       "and"          "streams"     
-##  [19] "the"          "beavers"      "dam"          "is"           "built"        "from"        
-##  [25] "twigs"        "sticks"       "leaves"       "and"          "mud"          "and"         
-##  [31] "are"          "surprisingly" "strong"       "here"         "the"          "beavers"     
-##  [37] "can"          "catch"        "their"        "food"         "and"          "swim"        
-##  [43] "in"           "the"          "water"        "beavers"      "are"          "nocturnal"   
-##  [49] "animals"      "existing"     "in"           "the"          "forests"      "of"          
-##  [55] "europe"       "and"          "north"        "america"      "the"          "canadian"    
-##  [61] "beaver"       "is"           "the"          "most"         "common"       "beaver"      
-##  [67] "beavers"      "use"          "their"        "large"        "flat"         "shaped"      
-##  [73] "tails"        "to"           "help"         "with"         "dam"          "building"    
-##  [79] "and"          "it"           "also"         "allows"       "the"          "beavers"     
-##  [85] "to"           "swim"         "at"           "speeds"       "of"           "up"          
-##  [91] "to"           "30"           "knots"        "per"          "hour"         "the"         
-##  [97] "beaver's"     "significance" "is"           "acknowledged" "in"           "canada"      
-## [103] "by"           "the"          "fact"         "that"         "there"        "is"          
-## [109] "a"            "canadian"     "beaver"       "on"           "one"          "of"          
-## [115] "their"        "coins"        "the"          "beaver"       "colonies"     "create"      
-## [121] "one"          "or"           "more"         "dams"         "in"           "the"         
-## [127] "beaver"       "colonies"     "habitat"      "to"           "provide"      "still"       
-## [133] "deep"         "water"        "to"           "protect"      "the"          "beavers"     
-## [139] "against"      "predators"    "the"          "beavers"      "also"         "use"         
-## [145] "the"          "deep"         "water"        "created"      "using"        "beaver"      
-## [151] "dams"         "and"          "to"           "float"        "food"         "and"         
-## [157] "building"     "materials"    "along"        "the"          "river"        "in"          
-## [163] "1988"         "the"          "north"        "american"     "beaver"       "population"  
-## [169] "was"          "60"           "400"          "million"      "recent"       "studies"     
-## [175] "have"         "estimated"    "there"        "are"          "now"          "around"      
-## [181] "6"            "12"           "million"      "beavers"      "found"        "in"          
-## [187] "the"          "wild"         "the"          "decline"      "in"           "beaver"      
-## [193] "populations"  "is"           "due"          "to"           "the"          "beavers"     
-## [199] "being"        "hunted"       "for"          "their"        "fur"          "and"         
-## [205] "for"          "the"          "beaver's"     "glands"       "that"         "are"         
-## [211] "used"         "as"           "medicine"     "and"          "perfume"      "the"         
-## [217] "beaver"       "is"           "also"         "hunted"       "because"      "the"         
-## [223] "beavers"      "harvesting"   "of"           "trees"        "and"          "the"         
-## [229] "beavers"      "flooding"     "of"           "waterways"    "may"          "interfere"   
-## [235] "with"         "other"        "human"        "land"         "uses"         "beavers"     
-## [241] "are"          "known"        "for"          "their"        "danger"       "signal"      
-## [247] "which"        "the"          "beaver"       "makes"        "when"         "the"         
-## [253] "beaver"       "is"           "startled"     "or"           "frightened"   "a"           
-## [259] "swimming"     "beaver"       "will"         "rapidly"      "dive"         "while"       
-## [265] "forcefully"   "slapping"     "the"          "water"        "with"         "its"         
-## [271] "broad"        "tail"         "this"         "means"        "that"         "the"         
-## [277] "beaver"       "creates"      "a"            "loud"         "slapping"     "noise"       
-## [283] "which"        "can"          "be"           "heard"        "over"         "large"       
-## [289] "distances"    "above"        "and"          "below"        "water"        "this"        
-## [295] "beaver"       "warning"      "noise"        "serves"       "as"           "a"           
-## [301] "warning"      "to"           "beavers"      "in"           "the"          "area"        
-## [307] "once"         "a"            "beaver"       "has"          "made"         "this"        
-## [313] "danger"       "signal"       "nearby"       "beavers"      "dive"         "and"         
-## [319] "may"          "not"          "come"         "back"         "up"           "for"         
-## [325] "some"         "time"         "beavers"      "are"          "slow"         "on"          
-## [331] "land"         "but"          "the"          "beavers"      "are"          "good"        
-## [337] "swimmers"     "that"         "can"          "stay"         "under"        "water"       
-## [343] "for"          "as"           "long"         "as"           "15"           "minutes"     
-## [349] "at"           "a"            "time"         "in"           "the"          "winter"      
-## [355] "the"          "beaver"       "does"         "not"          "hibernate"    "but"         
-## [361] "instead"      "stores"       "sticks"       "and"          "logs"         "underwater"  
-## [367] "that"         "the"          "beaver"       "can"          "then"         "feed"        
-## [373] "on"           "through"      "the"          "cold"         "winter"
+##   [1] "beavers"      "are"          "most"         "well"         "known"       
+##   [6] "for"          "their"        "distinctive"  "home"         "building"    
+##  [11] "that"         "can"          "be"           "seen"         "in"          
+##  [16] "rivers"       "and"          "streams"      "the"          "beavers"     
+##  [21] "dam"          "is"           "built"        "from"         "twigs"       
+##  [26] "sticks"       "leaves"       "and"          "mud"          "and"         
+##  [31] "are"          "surprisingly" "strong"       "here"         "the"         
+##  [36] "beavers"      "can"          "catch"        "their"        "food"        
+##  [41] "and"          "swim"         "in"           "the"          "water"       
+##  [46] "beavers"      "are"          "nocturnal"    "animals"      "existing"    
+##  [51] "in"           "the"          "forests"      "of"           "europe"      
+##  [56] "and"          "north"        "america"      "the"          "canadian"    
+##  [61] "beaver"       "is"           "the"          "most"         "common"      
+##  [66] "beaver"       "beavers"      "use"          "their"        "large"       
+##  [71] "flat"         "shaped"       "tails"        "to"           "help"        
+##  [76] "with"         "dam"          "building"     "and"          "it"          
+##  [81] "also"         "allows"       "the"          "beavers"      "to"          
+##  [86] "swim"         "at"           "speeds"       "of"           "up"          
+##  [91] "to"           "30"           "knots"        "per"          "hour"        
+##  [96] "the"          "beaver's"     "significance" "is"           "acknowledged"
+## [101] "in"           "canada"       "by"           "the"          "fact"        
+## [106] "that"         "there"        "is"           "a"            "canadian"    
+## [111] "beaver"       "on"           "one"          "of"           "their"       
+## [116] "coins"        "the"          "beaver"       "colonies"     "create"      
+## [121] "one"          "or"           "more"         "dams"         "in"          
+## [126] "the"          "beaver"       "colonies"     "habitat"      "to"          
+## [131] "provide"      "still"        "deep"         "water"        "to"          
+## [136] "protect"      "the"          "beavers"      "against"      "predators"   
+## [141] "the"          "beavers"      "also"         "use"          "the"         
+## [146] "deep"         "water"        "created"      "using"        "beaver"      
+## [151] "dams"         "and"          "to"           "float"        "food"        
+## [156] "and"          "building"     "materials"    "along"        "the"         
+## [161] "river"        "in"           "1988"         "the"          "north"       
+## [166] "american"     "beaver"       "population"   "was"          "60"          
+## [171] "400"          "million"      "recent"       "studies"      "have"        
+## [176] "estimated"    "there"        "are"          "now"          "around"      
+## [181] "6"            "12"           "million"      "beavers"      "found"       
+## [186] "in"           "the"          "wild"         "the"          "decline"     
+## [191] "in"           "beaver"       "populations"  "is"           "due"         
+## [196] "to"           "the"          "beavers"      "being"        "hunted"      
+## [201] "for"          "their"        "fur"          "and"          "for"         
+## [206] "the"          "beaver's"     "glands"       "that"         "are"         
+## [211] "used"         "as"           "medicine"     "and"          "perfume"     
+## [216] "the"          "beaver"       "is"           "also"         "hunted"      
+## [221] "because"      "the"          "beavers"      "harvesting"   "of"          
+## [226] "trees"        "and"          "the"          "beavers"      "flooding"    
+## [231] "of"           "waterways"    "may"          "interfere"    "with"        
+## [236] "other"        "human"        "land"         "uses"         "beavers"     
+## [241] "are"          "known"        "for"          "their"        "danger"      
+## [246] "signal"       "which"        "the"          "beaver"       "makes"       
+## [251] "when"         "the"          "beaver"       "is"           "startled"    
+## [256] "or"           "frightened"   "a"            "swimming"     "beaver"      
+## [261] "will"         "rapidly"      "dive"         "while"        "forcefully"  
+## [266] "slapping"     "the"          "water"        "with"         "its"         
+## [271] "broad"        "tail"         "this"         "means"        "that"        
+## [276] "the"          "beaver"       "creates"      "a"            "loud"        
+## [281] "slapping"     "noise"        "which"        "can"          "be"          
+## [286] "heard"        "over"         "large"        "distances"    "above"       
+## [291] "and"          "below"        "water"        "this"         "beaver"      
+## [296] "warning"      "noise"        "serves"       "as"           "a"           
+## [301] "warning"      "to"           "beavers"      "in"           "the"         
+## [306] "area"         "once"         "a"            "beaver"       "has"         
+## [311] "made"         "this"         "danger"       "signal"       "nearby"      
+## [316] "beavers"      "dive"         "and"          "may"          "not"         
+## [321] "come"         "back"         "up"           "for"          "some"        
+## [326] "time"         "beavers"      "are"          "slow"         "on"          
+## [331] "land"         "but"          "the"          "beavers"      "are"         
+## [336] "good"         "swimmers"     "that"         "can"          "stay"        
+## [341] "under"        "water"        "for"          "as"           "long"        
+## [346] "as"           "15"           "minutes"      "at"           "a"           
+## [351] "time"         "in"           "the"          "winter"       "the"         
+## [356] "beaver"       "does"         "not"          "hibernate"    "but"         
+## [361] "instead"      "stores"       "sticks"       "and"          "logs"        
+## [366] "underwater"   "that"         "the"          "beaver"       "can"         
+## [371] "then"         "feed"         "on"           "through"      "the"         
+## [376] "cold"         "winter"
 ```
 
 ---
@@ -1029,7 +1096,7 @@ We will illustrate the information that word carries with color.
 ]
 
 .pull-right[
-&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-22-1.png" width="80%" style="display: block; margin: auto;" /&gt;
 ]
 
 ---
@@ -1040,22 +1107,6 @@ We will illustrate the information that word carries with color.
 Uniform information
 
 If this was true then it would hurt to remove any words
-
-# 👎
-]
-
-.pull-right[
-&lt;img src="index_files/figure-html/unnamed-chunk-22-1.png" width="80%" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-.pull-left[
-## Word information
-
-Random information
-
-No way to figure out which words to remove
 
 # 👎
 ]
@@ -1085,14 +1136,11 @@ No way to figure out which words to remove
 .pull-left[
 ## Word information
 
-High variance information
-(diamonds in the rough)
+Random information
 
-Few words have a lot of information
+No way to figure out which words to remove
 
-most words have no information
-
-# 👍
+# 👎
 ]
 
 .pull-right[
@@ -1123,9 +1171,12 @@ most words have no information
 .pull-left[
 ## Word information
 
-Low variance information
+High variance information
+(diamonds in the rough)
 
-Smooth transition between low and high information words
+Few words have a lot of information
+
+most words have no information
 
 # 👍
 ]
@@ -1152,11 +1203,19 @@ Smooth transition between low and high information words
 
 ---
 
-.center[
-# Information distribution
+.pull-left[
+## Word information
+
+Low variance information
+
+Smooth transition between low and high information words
+
+# 👍
 ]
 
-&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" width="80%" style="display: block; margin: auto;" /&gt;
+]
 
 ---
 
@@ -1189,6 +1248,14 @@ Smooth transition between low and high information words
 ]
 
 &lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" width="700px" style="display: block; margin: auto;" /&gt;
+
+---
+
+.center[
+# Information distribution
+]
+
+&lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" width="700px" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -1339,7 +1406,7 @@ class: bg-corners, bg4
 - herself
 ]
 
-<div class="countdown" id="timer_60c86ae9" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_60c93125" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">30</span></code>
 </div>
 
@@ -1373,7 +1440,7 @@ class: bg-corners, bg4
 - system1
 ]
 
-<div class="countdown" id="timer_60c86953" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_60c92e3e" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">30</span></code>
 </div>
 
@@ -1407,7 +1474,7 @@ class: bg-corners, bg4
 - statistically
 ]
 
-<div class="countdown" id="timer_60c86ad0" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_60c92e48" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">00</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">30</span></code>
 </div>
 
