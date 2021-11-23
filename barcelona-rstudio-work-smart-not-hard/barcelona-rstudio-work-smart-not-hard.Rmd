@@ -1,0 +1,242 @@
+---
+title: "Work Smarter, Not Harder RStudio"
+subtitle: "Barcelona R User Group"
+author: "Emil Hvitfeldt"
+date: "2021-11-23"
+output:
+  xaringan::moon_reader:
+    css: ["theme.css", "default"]
+    lib_dir: libs
+    nature:
+      beforeInit: "macros.js"
+      ratio: "16:9"
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      titleSlideClass: [center, middle]
+---
+
+```{css, echo=FALSE}
+img {
+  box-shadow: 0 5px 10px rgb(0 0 0 / 0.8);
+}
+
+.kbd {
+    padding: 0.2rem 0.4rem;
+    font-size: 87.5%;
+    color: #fff;
+    background-color: #212529;
+    border-radius: 0.2rem;
+}
+```
+
+.center[
+![:scale 50%](images/rdata.png)
+]
+
+---
+
+.center[
+![:scale 50%](images/pane-view.png)
+]
+
+---
+
+.center[
+![:scale 50%](images/font-size.png)
+]
+
+---
+
+.center[
+![:scale 50%](images/theme-cobalt.png)
+]
+
+---
+
+.center[
+![:scale 50%](images/theme-dracula.png)
+]
+
+---
+
+.center[
+![:scale 50%](images/theme-solarized.png)
+]
+
+---
+
+.center[
+# https://github.com/gadenbuie/rsthemes
+]
+
+<br><br>
+
+.center[
+![:scale 50%](images/rsthemes.png)
+]
+
+---
+
+.center[
+# Rainbow Parentheses
+]
+
+.center[
+![:scale 40%](images/rainbow-option.png)
+]
+
+---
+
+.center[
+# Rainbow Parentheses
+]
+
+<br>
+
+.center[
+![:scale 50%](images/rainbow-before.png)
+]
+
+<br>
+
+.center[
+![:scale 50%](images/rainbow-after.png)
+]
+
+---
+
+# Create new chunks with shortcuts
+
+.kbd[Ctrl] + .kbd[Alt] + .kbd[I] (.kbd[Cmd] + .kbd[Option] + .kbd[I] on macOS)
+
+.center[
+![:scale 80%](images/new-chunk.gif)
+]
+
+---
+
+# Split existing chunks withshortcuts
+
+.kbd[Ctrl] + .kbd[Alt] + .kbd[I] (.kbd[Cmd] + .kbd[Option] + .kbd[I] on macOS)
+
+.center[
+![:scale 80%](images/split-chunk.gif)
+]
+
+---
+
+# Swap between Source and Console
+
+- .kbd[Ctrl] + .kbd[1]: focus on source file
+- .kbd[Ctrl] + .kbd[2]: focus on console
+
+---
+
+# Swap between Source and Console
+
+- .kbd[Ctrl] + .kbd[Shift] + .kbd[1] = focus on source file AND make maximize that window
+- .kbd[Ctrl] + .kbd[Shift] + .kbd[2] = focus on console AND maximize that window
+
+---
+
+# Multiple cursors
+
+.kbd[Ctrl] + .kbd[Alt] + {.kbd[Up]/.kbd[Down]} (.kbd[Ctrl] + .kbd[option] + {.kbd[Up]/.kbd[Down]} for MacOS)
+
+.center[
+![:scale 80%](images/multcursor.gif)
+]
+
+---
+
+# Rectangular select
+
+Hold .kbd[Alt] (.kbd[option] for MacOS) and drag
+
+.center[
+![:scale 80%](images/drag-select.gif)
+]
+
+---
+
+# Inspect data set
+
+.kbd[command] + click -> `Viewer()`
+
+.center[
+![:scale 55%](images/open-viewer.gif)
+]
+
+---
+
+.center[
+![:scale 50%](images/snippets-option.png)
+]
+
+---
+
+.center[
+![:scale 60%](images/snippets-r.png)
+]
+
+---
+
+.center[
+![:scale 60%](images/snippets-markdown.png)
+]
+
+---
+
+.center[
+![:scale 80%](images/snippets.gif)
+]
+
+
+---
+
+.center[
+![:scale 65%](images/addins.png)
+]
+
+---
+
+.center[
+
+<br> <br>
+
+# Addins
+
+<br> <br>
+
+## https://github.com/EmilHvitfeldt/emiladdins
+
+]
+
+---
+
+.center[
+
+<br> <br>
+
+# Create you own shortcuts
+
+<br> <br>
+
+## https://pkg.garrickadenbuie.com/shrtcts/
+
+]
+
+---
+
+class: center
+
+
+# Thank you!
+
+### `r icons::fontawesome("github")` [EmilHvitfeldt](https://github.com/EmilHvitfeldt/)
+### `r icons::fontawesome("twitter")` [@Emil_Hvitfeldt](https://twitter.com/Emil_Hvitfeldt)
+### `r icons::fontawesome("linkedin")` [EmilHvitfeldt](linkedin.com/in/emilhvitfeldt/)
+### `r icons::fontawesome("laptop")` [www.emilhvitfeldt.com](https://www.emilhvitfeldt.com/)
+
+Slides created via the R package [xaringan](https://github.com/yihui/xaringan).
