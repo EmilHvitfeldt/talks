@@ -43,7 +43,7 @@ opts_chunk$set(
 library(tidymodels)
 ```
 
-```{r, echo = FALSE}
+```{r include=FALSE}
 library(sass)
 sass(sass_file("theme.sass"), output = "theme.css")
 ```
