@@ -28,6 +28,11 @@
 
 # 2020
 
+## Looking at Stop Words: Why You Shouldn't Blindly Trust Model Defaults
+
+[Material](/slcrug-stopwords)  
+[Slides](https://slcrug-stopwords.netlify.app/)
+
 ## useR! 2020 - themis
 
 [Material](/user2020-themis)  
