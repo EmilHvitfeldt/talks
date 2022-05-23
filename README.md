@@ -6,10 +6,15 @@
 
 # 2021
 
+## Work Smarter, Not Harder RStudio
+
+[Material](barcelona-rstudio-work-smart-not-hard)  
+[Slides](https://barcelona-rstudio-work-harder-2021.netlify.app/)
+
 ## Tidymodels - An Overview
 
 [Material](/aalborg-tidymodels)  
-[Slides](https://allborg-tidymodels-2021.netlify.app/#1)
+[Slides](https://allborg-tidymodels-2021.netlify.app/)
 
 # 2020
 
