@@ -4,6 +4,13 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
+# 2021
+
+## Tidymodels - An Overview
+
+[Material](/aalborg-tidymodels)  
+[Slides](https://allborg-tidymodels-2021.netlify.app/#1)
+
 # 2020
 
 ## useR! 2020 - themis
