@@ -11,6 +11,16 @@
 [Material](barcelona-rstudio-work-smart-not-hard)  
 [Slides](https://barcelona-rstudio-work-harder-2021.netlify.app/)
 
+## Creating and Styling PPTX Slides with {rmarkdown}
+
+[Material](/Rmedicine2021-pptxtemplate)  
+[Slides](https://rmedicine2021-pptxtemplate.netlify.app/)
+
+## Text Preprocessing in R
+
+[Material](/nyhackr-text)  
+[Slides](https://nyhackr-text-preprocessing-2021.netlify.app/)
+
 ## Tidymodels - An Overview
 
 [Material](/aalborg-tidymodels)  
