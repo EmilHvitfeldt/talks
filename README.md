@@ -33,6 +33,11 @@
 [Material](/slcrug-stopwords)  
 [Slides](https://slcrug-stopwords.netlify.app/)
 
+## palette2vec - A new way to explore color palettes
+
+[Material](/whyr2020-palette2vec)  
+[Slides](https://palette2vec-whyr2020.netlify.app)
+
 ## useR! 2020 - themis
 
 [Material](/user2020-themis)  
